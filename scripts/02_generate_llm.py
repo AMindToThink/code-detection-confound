@@ -25,8 +25,8 @@ import pandas as pd
 GEN_DIR = C.DATA / "gen"
 GEN_DIR.mkdir(exist_ok=True)
 MAX_PROMPT_TOKENS = 2048
-MAX_NEW_TOKENS = 640
-BATCH = 12
+MAX_NEW_TOKENS = 420
+BATCH = 16
 
 
 def extract_code(text: str) -> str:

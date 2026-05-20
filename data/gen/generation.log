@@ -1,1 +1,40 @@
 ===== 05:42:03 generating google/gemma-2-2b-it =====
+  12/360 prompts done
+  24/360 prompts done
+  36/360 prompts done
+  48/360 prompts done
+  60/360 prompts done
+  72/360 prompts done
+  84/360 prompts done
+  96/360 prompts done
+  108/360 prompts done
+  120/360 prompts done
+  132/360 prompts done
+  144/360 prompts done
+  156/360 prompts done
+  168/360 prompts done
+  180/360 prompts done
+  192/360 prompts done
+  204/360 prompts done
+  216/360 prompts done
+  228/360 prompts done
+  240/360 prompts done
+  252/360 prompts done
+  264/360 prompts done
+  276/360 prompts done
+  288/360 prompts done
+  300/360 prompts done
+  312/360 prompts done
+  324/360 prompts done
+  336/360 prompts done
+  348/360 prompts done
+  360/360 prompts done
+google/gemma-2-2b-it: 718 generations -> /home/cs29824/matthew/code-detection-confound/data/gen/google__gemma-2-2b-it.parquet
+band  condition
+easy  expert       120
+      natural      120
+      novice       120
+hard  expert       120
+      natural      120
+      novice       118
+dtype: int64
