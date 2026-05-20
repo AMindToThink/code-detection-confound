@@ -31,12 +31,13 @@ detector tracks neither --- it largely tracks \textbf{code formatting}.
 \textbf{(1) Headline.} A SOTA trained detector (DroidDetect, ModernBERT) that we load
 faithfully---reproducing the authors' performance on their \emph{own} DroidCollection Python
 test data (AUROC \resDroidInDistAUROC{}, \resDroidInDistHumanFPR{} human false-positive
-rate)---collapses under a \emph{semantics-preserving} reformatting. Passing its own human
-test code through \texttt{ast.unparse} (which normalizes whitespace and drops comments but
-preserves the program) flips its false-positive rate from \textbf{\resAblDcHumanOrig{}} to
-\textbf{\resAblDcHumanCanon{}}, and shrinks the human/machine separation from
-\resAblGapOrig{} to \resAblGapCanon{}. Stripping comments \emph{alone} barely moves it
-(\resAblDcHumanStrip{}), so the signal is whitespace/layout. The detector has learned
+rate)---collapses under a \emph{semantics-preserving} reformatting. Running its own human test code
+through \texttt{black} (the standard formatter, which keeps comments and only restyles
+layout) flips its false-positive rate from \textbf{\resAblDcHumanOrig{}} to
+\textbf{\resAblDcHumanBlack{}} (\texttt{ast.unparse} gives \resAblDcHumanCanon{}), and shrinks
+the human/machine separation from \resAblGapOrig{} to \resAblGapBlack{}. Stripping comments
+\emph{alone} barely moves it (\resAblDcHumanStrip{}), so the signal is whitespace/layout, not
+comments and not words (identifiers are preserved exactly). The detector has learned
 ``idiosyncratic human formatting ${=}$ human, clean formatting ${=}$ machine,'' not
 human-vs-AI content. The zero-shot statistical detectors (Fast-DetectGPT, Binoculars) are
 far more formatting-robust.
@@ -85,26 +86,48 @@ skill axis) is the mechanism test; $\Delta_{\text{confound}}$ is reported per de
 We first establish the detector is loaded correctly: on the authors' own DroidCollection
 Python test set it scores AUROC \resDroidInDistAUROC{} with a \resDroidInDistHumanFPR{}
 human false-positive rate and \resDroidInDistMachineFlag{} machine recall---reproducing the
-published numbers. We then apply a \emph{semantics-preserving} transform to the input code:
-\texttt{ast.unparse(ast.parse(code))}, which re-emits the identical program with canonical
-whitespace and with comments/docstrings removed. The effect on DroidDetect's predictions is
-dramatic (Fig.~\ref{fig:ablation}). On its \emph{own} human test data the fraction called
-``machine'' rises from \resAblDcHumanOrig{} (raw) to \resAblDcHumanCanon{} (canonicalized);
-the human$\leftrightarrow$machine flag-rate gap collapses from \resAblGapOrig{} to
-\resAblGapCanon{}. Removing comments alone leaves it almost unchanged
-(\resAblDcHumanStrip{}), so the operative signal is \textbf{whitespace/layout}, not
-comments. In other words, the detector has largely learned ``idiosyncratic human formatting
-${=}$ human, clean/canonical formatting ${=}$ machine''---a surface feature, not authorship.
-The statistical detectors' scores shift far less under the same transform.
+published numbers. We then apply \emph{semantics-preserving} reformatters to the input code
+and re-score. We use two, deliberately:
+\textbf{(i) \texttt{black}}, the standard Python formatter, which restyles
+whitespace/indentation/quote-style/line-wrapping but \emph{keeps comments and docstrings};
+\textbf{(ii) \texttt{ast.unparse(ast.parse(code))}}, which additionally drops \texttt{\#}
+comments. Neither alters the lexical content a detector might legitimately use---variable and
+function names, string/numeric literals, and docstrings are all retained (we verify the
+identifier-token multiset is preserved at a mean of \resAblIdentPreserved{}, i.e.\ exactly).
+So these are pure \emph{formatting} changes, not ``humans and AI use different words'' changes.
+
+The effect on DroidDetect is dramatic (Fig.~\ref{fig:ablation}). On its \emph{own} human test
+data the fraction called ``machine'' rises from \resAblDcHumanOrig{} (raw) to
+\resAblDcHumanBlack{} under \texttt{black} (comments \emph{kept}) and \resAblDcHumanCanon{}
+under \texttt{ast.unparse}; the human$\leftrightarrow$machine gap collapses from
+\resAblGapOrig{} to \resAblGapCanon{}. That \texttt{black} alone---which changes nothing but
+layout---produces nearly the whole flip, while \emph{removing comments} on their own barely
+moves it (\resAblDcHumanStrip{}), pins the operative signal to \textbf{whitespace/layout}. The
+detector has largely learned ``idiosyncratic human formatting ${=}$ human, clean formatting
+${=}$ machine''---a surface feature, not authorship. The statistical detectors shift far less.
 
 \begin{figure}[h]\centering
 \includegraphics[width=0.95\linewidth]{fig7_format_ablation.png}
-\caption{Semantics-preserving canonicalization (\texttt{ast.unparse}) flips DroidDetect's
-verdict on the authors' \emph{own} human test data from \resAblDcHumanOrig{} to
-\resAblDcHumanCanon{} ``machine,'' collapsing the human/machine gap. The signal is
-whitespace/layout (comment-stripping alone barely moves it).}
+\caption{Semantics-preserving reformatting flips DroidDetect's verdict on the authors'
+\emph{own} human test data. Running it through \texttt{black} (comments kept) raises the
+``machine'' rate from \resAblDcHumanOrig{} to \resAblDcHumanBlack{} (\texttt{ast.unparse}:
+\resAblDcHumanCanon{}); comment-stripping alone barely moves it (\resAblDcHumanStrip{}). The
+signal is whitespace/layout, with identifiers/literals preserved exactly.}
 \label{fig:ablation}
 \end{figure}
+
+\paragraph{Why---a training-data formatting confound.} This shortcut is surprising, since
+humans run \texttt{black} too. Its origin is in the data: the two training classes differ
+systematically in formatting cleanliness. In DroidCollection, only a fraction
+\resFmtHumanAlreadyBlack{} of \emph{human} Python is already \texttt{black}-compliant, versus
+\resFmtMachineAlreadyBlack{} of \emph{machine} Python (mean similarity-to-\texttt{black}
+\resFmtHumanBlackSim{} vs \resFmtMachineBlackSim{}). The machine class is born clean---freshly generated by LLMs that
+emit canonical PEP8-ish layout---while the human class carries its original, idiosyncratic
+formatting. A classifier minimising training loss can exploit this almost-free formatting cue
+instead of learning authorship. Because the cue is an artifact of how the corpus was
+assembled (generate-fresh vs.\ scrape-as-is), and because real human code is routinely
+auto-formatted, the cue is invalid at deployment: any human who runs a formatter looks like a
+machine.
 
 \subsection{The skill confound is absent on the competitive-skill axis}
 Table~\ref{tab:slopes} gives within-species slopes (SD units). Under H$_\text{skill}$ both

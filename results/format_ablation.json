@@ -1,10 +1,16 @@
 {
   "n_target": 200,
+  "identifier_preservation_ast_canon": 0.9999518999518999,
   "transform_success": {
     "original": {
       "MatrixStudio-human": 1.0,
       "DroidCollection-human": 1.0,
       "DroidCollection-machine": 1.0
+    },
+    "black": {
+      "MatrixStudio-human": 1.0,
+      "DroidCollection-human": 0.99,
+      "DroidCollection-machine": 0.875
     },
     "ast_canon": {
       "MatrixStudio-human": 1.0,
@@ -41,11 +47,34 @@
         "mean_p_machine": 0.9850171233341097
       }
     },
+    "black": {
+      "MatrixStudio-human": {
+        "flag_rate": 0.965,
+        "ci_lo": 0.935,
+        "ci_hi": 0.99,
+        "n": 200,
+        "mean_p_machine": 0.9639489587908611
+      },
+      "DroidCollection-human": {
+        "flag_rate": 0.8282828282828283,
+        "ci_lo": 0.7777777777777778,
+        "ci_hi": 0.8787878787878788,
+        "n": 198,
+        "mean_p_machine": 0.8298933667864538
+      },
+      "DroidCollection-machine": {
+        "flag_rate": 0.9771428571428571,
+        "ci_lo": 0.9542857142857143,
+        "ci_hi": 0.9942857142857143,
+        "n": 175,
+        "mean_p_machine": 0.9782319357299379
+      }
+    },
     "ast_canon": {
       "MatrixStudio-human": {
         "flag_rate": 0.855,
-        "ci_lo": 0.8,
-        "ci_hi": 0.905,
+        "ci_lo": 0.805,
+        "ci_hi": 0.9,
         "n": 200,
         "mean_p_machine": 0.8515528398891911
       },
@@ -59,7 +88,7 @@
       "DroidCollection-machine": {
         "flag_rate": 0.8628571428571429,
         "ci_lo": 0.8114285714285714,
-        "ci_hi": 0.9085714285714286,
+        "ci_hi": 0.9142857142857143,
         "n": 175,
         "mean_p_machine": 0.8598036892632288
       }
@@ -85,36 +114,6 @@
         "ci_hi": 0.9949748743718593,
         "n": 199,
         "mean_p_machine": 0.9783487884262249
-      }
-    }
-  },
-  "statistical_mean_score": {
-    "original": {
-      "MatrixStudio-human": {
-        "FastDetectGPT": -0.6300128133047838,
-        "Binoculars": -0.8611498488485814
-      },
-      "DroidCollection-human": {
-        "FastDetectGPT": -1.0575623603537678,
-        "Binoculars": -0.8185819058120251
-      },
-      "DroidCollection-machine": {
-        "FastDetectGPT": -0.4863282083300874,
-        "Binoculars": -0.7671225568652154
-      }
-    },
-    "ast_canon": {
-      "MatrixStudio-human": {
-        "FastDetectGPT": -0.12678671711357312,
-        "Binoculars": -0.8064139193296432
-      },
-      "DroidCollection-human": {
-        "FastDetectGPT": -0.6573830838726759,
-        "Binoculars": -0.7971299174759123
-      },
-      "DroidCollection-machine": {
-        "FastDetectGPT": -0.31671844405255145,
-        "Binoculars": -0.7558143261500767
       }
     }
   }

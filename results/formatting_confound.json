@@ -1,0 +1,18 @@
+{
+  "near_threshold": 0.98,
+  "DroidCollection_human": {
+    "n": 148,
+    "black_similarity_mean": 0.8366925215998585,
+    "already_black_frac": 0.14864864864864866
+  },
+  "DroidCollection_machine": {
+    "n": 131,
+    "black_similarity_mean": 0.9460667498321863,
+    "already_black_frac": 0.44274809160305345
+  },
+  "MatrixStudio_human": {
+    "n": 150,
+    "black_similarity_mean": 0.9005978847432174,
+    "already_black_frac": 0.2866666666666667
+  }
+}

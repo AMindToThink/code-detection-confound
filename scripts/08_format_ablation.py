@@ -39,11 +39,41 @@ N = 200
 
 
 def ast_canon(code: str) -> str | None:
-    """Canonical formatting via round-trip; strips comments/docstrings, normalizes ws."""
+    """Canonical formatting via AST round-trip: normalizes whitespace, drops # comments,
+    removes redundant parens, normalizes quotes. Preserves identifiers/literals/docstrings."""
     try:
         return ast.unparse(ast.parse(code))
     except Exception:
         return None
+
+
+def black_format_corpus(codes: list[str]) -> list[str | None]:
+    """Format a list of code strings with `black` via `uvx` (ephemeral, no env changes).
+    black PRESERVES comments and docstrings; it only restyles whitespace/indentation/quotes/
+    line-wrapping. Returns black output per item, or None if black could not parse it."""
+    import subprocess
+    import tempfile
+    out: list[str | None] = [None] * len(codes)
+    with tempfile.TemporaryDirectory() as d:
+        dp = Path(d)
+        for i, c in enumerate(codes):
+            (dp / f"{i}.py").write_text(c)
+        # one ephemeral black over the whole dir; unparseable files are left untouched + reported
+        subprocess.run(["uvx", "black", "-q", str(dp)], capture_output=True, text=True)
+        for i, c in enumerate(codes):
+            formatted = (dp / f"{i}.py").read_text()
+            # black leaves unparseable files byte-identical; mark those None so "black" only
+            # measures files black actually restyled or accepted-as-formatted.
+            out[i] = formatted if _py_parses(c) else None
+    return out
+
+
+def _py_parses(code: str) -> bool:
+    try:
+        ast.parse(code)
+        return True
+    except Exception:
+        return False
 
 
 def strip_comments(code: str) -> str | None:
@@ -89,7 +119,12 @@ def main() -> None:
     corpora = {"MatrixStudio-human": ms_human,
                "DroidCollection-human": dc_human,
                "DroidCollection-machine": dc_machine}
-    transforms = {"original": lambda c: c, "ast_canon": ast_canon, "strip_comments": strip_comments}
+    callable_transforms = {"original": lambda c: c, "ast_canon": ast_canon,
+                           "strip_comments": strip_comments}
+    # black is a batch (subprocess) transform — precompute per corpus
+    print("formatting corpora with black (uvx, ephemeral)...", flush=True)
+    black_versions = {cname: black_format_corpus(codes) for cname, codes in corpora.items()}
+    transform_names = ["original", "black", "ast_canon", "strip_comments"]
 
     dd = DroidDetect()
 
@@ -99,12 +134,41 @@ def main() -> None:
             lg = dd.model(enc["input_ids"], enc["attention_mask"])
         return F.softmax(lg.float(), dim=-1)[0, 1].item()
 
-    out = {"n_target": N, "transform_success": {}, "droiddetect_argmax": {}}
-    for tname, fn in transforms.items():
+    # --- preflight: confirm ast_canon PRESERVES identifiers/words (only formatting changes),
+    # so the ablation does NOT remove the legitimate lexical "humans vs AI use different words"
+    # signal. Reports the mean fraction of the identifier-token multiset retained after canon.
+    def ident_multiset(code):
+        from collections import Counter
+        names = Counter()
+        try:
+            for t in tokenize.generate_tokens(StringIO(code).readline):
+                if t.type == tokenize.NAME:
+                    names[t.string] += 1
+        except Exception:
+            return None
+        return names
+
+    pres = []
+    for c in corpora["DroidCollection-human"]:
+        cc = ast_canon(c)
+        if cc is None:
+            continue
+        n0, n1 = ident_multiset(c), ident_multiset(cc)
+        if n0 and n1:
+            pres.append(sum((n0 & n1).values()) / max(sum(n0.values()), 1))
+    identifier_preservation = float(np.mean(pres)) if pres else float("nan")
+
+    out = {"n_target": N, "identifier_preservation_ast_canon": identifier_preservation,
+           "transform_success": {}, "droiddetect_argmax": {}}
+    print(f"identifier multiset preserved by ast_canon: {identifier_preservation:.3f}", flush=True)
+    for tname in transform_names:
         out["droiddetect_argmax"][tname] = {}
         out["transform_success"][tname] = {}
         for cname, codes in corpora.items():
-            transformed = [fn(c) for c in codes]
+            if tname == "black":
+                transformed = black_versions[cname]
+            else:
+                transformed = [callable_transforms[tname](c) for c in codes]
             ok = [t for t in transformed if t and len(t) >= 20]
             out["transform_success"][tname][cname] = len(ok) / max(len(codes), 1)
             scores = [droid_score(t) for t in ok]
@@ -115,14 +179,22 @@ def main() -> None:
             }
             print(f"DroidDetect [{tname:14s}] {cname:26s} flag@0.5={fr:.3f} (n={len(ok)})", flush=True)
 
+    # save DroidDetect (incl. black) results NOW, before the slow statistical-detector pass,
+    # so the headline figure can be built without waiting on it.
+    (C.RESULTS / "format_ablation.json").write_text(json.dumps(out, indent=2))
+    print("wrote results/format_ablation.json (DroidDetect; pre-statistical)", flush=True)
+
     # statistical detectors: robustness contrast (mean score shift under canonicalization)
     sd = StatDetectors()
     out["statistical_mean_score"] = {}
-    for tname in ("original", "ast_canon"):
-        fn = transforms[tname]
+    for tname in ("original", "black", "ast_canon"):
         out["statistical_mean_score"][tname] = {}
         for cname, codes in corpora.items():
-            ok = [fn(c) for c in codes]; ok = [t for t in ok if t and len(t) >= 20]
+            if tname == "black":
+                transformed = black_versions[cname]
+            else:
+                transformed = [callable_transforms[tname](c) for c in codes]
+            ok = [t for t in transformed if t and len(t) >= 20][:80]   # subset: speed
             fd = [sd.score_one(t)["FastDetectGPT"] for t in ok]
             bn = [sd.score_one(t)["Binoculars"] for t in ok]
             out["statistical_mean_score"][tname][cname] = {

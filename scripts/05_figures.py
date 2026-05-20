@@ -197,22 +197,24 @@ def fig_format_ablation():
     A2 = _json.loads(p.read_text())
     dd = A2["droiddetect_argmax"]
     corpora = ["MatrixStudio-human", "DroidCollection-human", "DroidCollection-machine"]
-    transforms = ["original", "ast_canon", "strip_comments"]
-    tlabels = {"original": "original", "ast_canon": "canonicalized\n(ast.unparse)", "strip_comments": "comments\nstripped"}
-    tcol = {"original": "#4a544f", "ast_canon": "#a23a1f", "strip_comments": "#b48a3a"}
-    fig, ax = plt.subplots(figsize=(9, 4.5))
-    x = np.arange(len(corpora)); w = 0.26
+    transforms = [t for t in ["original", "black", "ast_canon", "strip_comments"] if t in dd]
+    tlabels = {"original": "original", "black": "black\n(comments KEPT)",
+               "ast_canon": "ast.unparse\n(comments dropped)", "strip_comments": "comments\nstripped only"}
+    tcol = {"original": "#4a544f", "black": "#1f6f78", "ast_canon": "#a23a1f", "strip_comments": "#b48a3a"}
+    fig, ax = plt.subplots(figsize=(10.5, 4.6))
+    x = np.arange(len(corpora)); w = 0.8 / len(transforms)
     for k, t in enumerate(transforms):
         vals = [dd[t][c]["flag_rate"] for c in corpora]
         err = [[max(dd[t][c]["flag_rate"] - dd[t][c]["ci_lo"], 0) for c in corpora],
                [max(dd[t][c]["ci_hi"] - dd[t][c]["flag_rate"], 0) for c in corpora]]
-        ax.bar(x + (k - 1) * w, vals, w, yerr=err, capsize=3, color=tcol[t], label=tlabels[t])
+        ax.bar(x + (k - (len(transforms) - 1) / 2) * w, vals, w, yerr=err, capsize=3,
+               color=tcol[t], label=tlabels[t])
     ax.set_xticks(x); ax.set_xticklabels(["MatrixStudio\nhuman", "DroidCollection\nhuman\n(in-distribution)", "DroidCollection\nmachine"], fontsize=9)
     ax.set_ylabel("fraction called MACHINE by DroidDetect (argmax)")
     ax.set_ylim(0, 1)
-    ax.set_title("DroidDetect is a formatting classifier: semantics-preserving canonicalization\n"
-                 "flips its OWN human test data from 1% to 53% 'machine' (bars = bootstrap 95% CI)")
-    ax.legend(title="code transform", fontsize=9)
+    ax.set_title("DroidDetect is a formatting classifier: semantics-preserving reformatting (black,\n"
+                 "comments kept) flips its OWN human test data to 'machine' (bars = bootstrap 95% CI)")
+    ax.legend(title="code transform", fontsize=8, ncol=2)
     fig.savefig(C.FIGURES / "fig7_format_ablation.png")
     plt.close(fig)
 
