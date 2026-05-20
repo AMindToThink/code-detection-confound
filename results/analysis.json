@@ -1,0 +1,448 @@
+{
+  "n_samples": {
+    "cf": 2655,
+    "legendary": 135,
+    "atcoder": 54
+  },
+  "llm_models": [
+    "Qwen/Qwen2.5-3B-Instruct",
+    "google/gemma-2-2b-it",
+    "gpt-5.4-nano"
+  ],
+  "cell_aurocs": {
+    "cells": {
+      "DroidDetect": {
+        "easy|natural": {
+          "auroc": 0.8117766168050797,
+          "ci_lo": 0.7809006921444481,
+          "ci_hi": 0.8421070810243643,
+          "kind": "mismatched",
+          "n_human": 357,
+          "n_llm": 682
+        },
+        "easy|novice": {
+          "auroc": 0.657920855018435,
+          "ci_lo": 0.6218755080287239,
+          "ci_hi": 0.696624843199413,
+          "kind": "matched",
+          "n_human": 357,
+          "n_llm": 683
+        },
+        "easy|expert": {
+          "auroc": 0.688375350140056,
+          "ci_lo": 0.6553830471327882,
+          "ci_hi": 0.7207496178970493,
+          "kind": "expert",
+          "n_human": 357,
+          "n_llm": 676
+        },
+        "hard|natural": {
+          "auroc": 0.8238329700925409,
+          "ci_lo": 0.7909128006907075,
+          "ci_hi": 0.8556446757385484,
+          "kind": "matched",
+          "n_human": 257,
+          "n_llm": 682
+        },
+        "hard|novice": {
+          "auroc": 0.6929060963590478,
+          "ci_lo": 0.6462757903209317,
+          "ci_hi": 0.735902276195653,
+          "kind": "mismatched",
+          "n_human": 257,
+          "n_llm": 683
+        },
+        "hard|expert": {
+          "auroc": 0.7215826675569268,
+          "ci_lo": 0.6841599930724701,
+          "ci_hi": 0.754315898923838,
+          "kind": "expert",
+          "n_human": 257,
+          "n_llm": 676
+        }
+      },
+      "FastDetectGPT": {
+        "easy|natural": {
+          "auroc": 0.6153716618612254,
+          "ci_lo": 0.5728625901547884,
+          "ci_hi": 0.6549212509521243,
+          "kind": "mismatched",
+          "n_human": 357,
+          "n_llm": 682
+        },
+        "easy|novice": {
+          "auroc": 0.696839204202911,
+          "ci_lo": 0.6599693979726488,
+          "ci_hi": 0.7322518809194147,
+          "kind": "matched",
+          "n_human": 357,
+          "n_llm": 683
+        },
+        "easy|expert": {
+          "auroc": 0.36872026917275785,
+          "ci_lo": 0.3326871670147618,
+          "ci_hi": 0.40329473770838326,
+          "kind": "expert",
+          "n_human": 357,
+          "n_llm": 676
+        },
+        "hard|natural": {
+          "auroc": 0.7111950431895204,
+          "ci_lo": 0.67241541333374,
+          "ci_hi": 0.7497247527924742,
+          "kind": "matched",
+          "n_human": 257,
+          "n_llm": 682
+        },
+        "hard|novice": {
+          "auroc": 0.7842888150810968,
+          "ci_lo": 0.7489524436664405,
+          "ci_hi": 0.8201447742169528,
+          "kind": "mismatched",
+          "n_human": 257,
+          "n_llm": 683
+        },
+        "hard|expert": {
+          "auroc": 0.45640987267745725,
+          "ci_lo": 0.41551124589011906,
+          "ci_hi": 0.5002544823579859,
+          "kind": "expert",
+          "n_human": 257,
+          "n_llm": 676
+        }
+      },
+      "Binoculars": {
+        "easy|natural": {
+          "auroc": 0.6627976703878031,
+          "ci_lo": 0.6142457766873699,
+          "ci_hi": 0.7100874325210722,
+          "kind": "mismatched",
+          "n_human": 357,
+          "n_llm": 682
+        },
+        "easy|novice": {
+          "auroc": 0.6825055058626672,
+          "ci_lo": 0.6389815641534392,
+          "ci_hi": 0.726283345121403,
+          "kind": "matched",
+          "n_human": 357,
+          "n_llm": 683
+        },
+        "easy|expert": {
+          "auroc": 0.593058525185222,
+          "ci_lo": 0.5381136713087903,
+          "ci_hi": 0.6471881752265582,
+          "kind": "expert",
+          "n_human": 357,
+          "n_llm": 676
+        },
+        "hard|natural": {
+          "auroc": 0.6480481988201331,
+          "ci_lo": 0.5991913212963111,
+          "ci_hi": 0.6959061363298311,
+          "kind": "matched",
+          "n_human": 257,
+          "n_llm": 682
+        },
+        "hard|novice": {
+          "auroc": 0.6710609521964781,
+          "ci_lo": 0.6230047966422118,
+          "ci_hi": 0.7165070699686413,
+          "kind": "mismatched",
+          "n_human": 257,
+          "n_llm": 683
+        },
+        "hard|expert": {
+          "auroc": 0.566234199801994,
+          "ci_lo": 0.5112772322886845,
+          "ci_hi": 0.6239134212032055,
+          "kind": "expert",
+          "n_human": 257,
+          "n_llm": 676
+        }
+      }
+    },
+    "delta_confound": {
+      "DroidDetect": {
+        "auroc_matched": 0.7408769125554879,
+        "auroc_mismatched": 0.7523413565820638,
+        "delta": 0.01146444402657587,
+        "family": "trained"
+      },
+      "FastDetectGPT": {
+        "auroc_matched": 0.7040171236962157,
+        "auroc_mismatched": 0.6998302384711611,
+        "delta": -0.004186885225054615,
+        "family": "statistical"
+      },
+      "Binoculars": {
+        "auroc_matched": 0.6652768523414001,
+        "auroc_mismatched": 0.6669293112921406,
+        "delta": 0.0016524589507405096,
+        "family": "statistical"
+      }
+    }
+  },
+  "delta_confound_ci": {
+    "DroidDetect": {
+      "ci_lo": 0.0018096058957560392,
+      "ci_hi": 0.021277455225704726
+    },
+    "FastDetectGPT": {
+      "ci_lo": -0.00898104191637101,
+      "ci_hi": -0.00025321055362436003
+    },
+    "Binoculars": {
+      "ci_lo": -0.0016704962593866056,
+      "ci_hi": 0.005510931311166911
+    }
+  },
+  "within_species_slopes": {
+    "DroidDetect": {
+      "human_slope": -0.29159694172397926,
+      "human_ci": [
+        -0.5192392547905568,
+        -0.05855583918085559
+      ],
+      "llm_slope": -0.09142997977903443,
+      "llm_ci": [
+        -0.13828122064525453,
+        -0.045482661464573575
+      ],
+      "family": "trained"
+    },
+    "FastDetectGPT": {
+      "human_slope": -0.2962347897972417,
+      "human_ci": [
+        -0.45854168701335446,
+        -0.12371402152431145
+      ],
+      "llm_slope": -0.5434843872683458,
+      "llm_ci": [
+        -0.5857314104928115,
+        -0.4974152416024277
+      ],
+      "family": "statistical"
+    },
+    "Binoculars": {
+      "human_slope": 0.07350410126951101,
+      "human_ci": [
+        -0.2060957726673927,
+        0.3367716959051057
+      ],
+      "llm_slope": -0.1904379533534876,
+      "llm_ci": [
+        -0.24464800662964445,
+        -0.13527684989220629
+      ],
+      "family": "statistical"
+    }
+  },
+  "difficulty_to_style": {
+    "feat_comment_density": {
+      "easy": 0.021321238048810292,
+      "hard": 0.028121760395970703
+    },
+    "feat_blank_line_ratio": {
+      "easy": 0.08194335079940378,
+      "hard": 0.09215447218920529
+    },
+    "feat_mean_identifier_len": {
+      "easy": 2.723627083743986,
+      "hard": 2.4822499378318605
+    },
+    "feat_single_char_ident_frac": {
+      "easy": 0.5519718459370399,
+      "hard": 0.5714176429163436
+    },
+    "feat_mean_line_len": {
+      "easy": 21.833946472025264,
+      "hard": 25.542069296999355
+    },
+    "feat_has_docstring": {
+      "easy": 0.036414565826330535,
+      "hard": 0.04669260700389105
+    },
+    "feat_has_type_hints": {
+      "easy": 0.5938375350140056,
+      "hard": 0.754863813229572
+    },
+    "feat_has_main_guard": {
+      "easy": 0.03361344537815126,
+      "hard": 0.07392996108949416
+    },
+    "feat_n_defs": {
+      "easy": 0.28291316526610644,
+      "hard": 0.6964980544747081
+    },
+    "feat_n_lines": {
+      "easy": 15.168067226890756,
+      "hard": 23.56420233463035
+    },
+    "feat_code_chars": {
+      "easy": 301.98879551820727,
+      "hard": 644.0194552529183
+    }
+  },
+  "style_mediation": {
+    "DroidDetect": {
+      "r2_style": 0.12799949132313582
+    },
+    "FastDetectGPT": {
+      "r2_style": 0.27649326510070993
+    },
+    "Binoculars": {
+      "r2_style": 0.07146775773169212
+    }
+  },
+  "legendary": {
+    "thresholds": {
+      "DroidDetect": 0.9978895217180253,
+      "FastDetectGPT": 0.9898170441389089,
+      "Binoculars": -0.6220895260572433
+    },
+    "by_detector": {
+      "DroidDetect": {
+        "flag_rate_5pctFPR": 0.4888888888888889,
+        "mean_score": 0.784345216954265,
+        "family": "trained",
+        "flag_rate_native_0.5": 0.7851851851851852
+      },
+      "FastDetectGPT": {
+        "flag_rate_5pctFPR": 0.1259259259259259,
+        "mean_score": -0.29784405705070605,
+        "family": "statistical"
+      },
+      "Binoculars": {
+        "flag_rate_5pctFPR": 0.2,
+        "mean_score": -0.6802739061691143,
+        "family": "statistical"
+      }
+    },
+    "by_author": {
+      "CPython core": {
+        "DroidDetect": {
+          "flag_rate_5pctFPR": 0.875,
+          "mean_score": 0.974673318117857
+        },
+        "FastDetectGPT": {
+          "flag_rate_5pctFPR": 0.15,
+          "mean_score": -0.0020019419491291044
+        },
+        "Binoculars": {
+          "flag_rate_5pctFPR": 0.275,
+          "mean_score": -0.661064313352108
+        },
+        "n": 40
+      },
+      "D. Richard Hipp": {
+        "DroidDetect": {
+          "flag_rate_5pctFPR": 0.275,
+          "mean_score": 0.7338360229332466
+        },
+        "FastDetectGPT": {
+          "flag_rate_5pctFPR": 0.175,
+          "mean_score": 0.06132103300187737
+        },
+        "Binoculars": {
+          "flag_rate_5pctFPR": 0.1,
+          "mean_score": -0.6783791348338127
+        },
+        "n": 40
+      },
+      "Linus Torvalds": {
+        "DroidDetect": {
+          "flag_rate_5pctFPR": 0.4,
+          "mean_score": 0.6061202398501336
+        },
+        "FastDetectGPT": {
+          "flag_rate_5pctFPR": 0.06666666666666667,
+          "mean_score": -0.6450252056121826
+        },
+        "Binoculars": {
+          "flag_rate_5pctFPR": 0.13333333333333333,
+          "mean_score": -0.7234841585159302
+        },
+        "n": 15
+      },
+      "Salvatore Sanfilippo": {
+        "DroidDetect": {
+          "flag_rate_5pctFPR": 0.35,
+          "mean_score": 0.7113606762257405
+        },
+        "FastDetectGPT": {
+          "flag_rate_5pctFPR": 0.075,
+          "mean_score": -0.8226583314943128
+        },
+        "Binoculars": {
+          "flag_rate_5pctFPR": 0.25,
+          "mean_score": -0.6851744256913662
+        },
+        "n": 40
+      }
+    },
+    "cf_human_baseline": {
+      "DroidDetect": {
+        "mean_score": 0.6193252590284698
+      },
+      "FastDetectGPT": {
+        "mean_score": -0.9256428525406194
+      },
+      "Binoculars": {
+        "mean_score": -0.8636211624265882
+      }
+    }
+  },
+  "atcoder_author_skill": {
+    "n": 54,
+    "band_n": {
+      "low_skill": 45,
+      "high_skill": 9
+    },
+    "mean_rating": {
+      "low_skill": 322.73333333333335,
+      "high_skill": 2224.6666666666665
+    },
+    "by_detector": {
+      "DroidDetect": {
+        "mean_z_high": -0.30887257371865595,
+        "mean_z_low": 0.06177451474373125,
+        "high_minus_low": -0.3706470884623872,
+        "slope_per_400elo": -0.1002663790835383,
+        "slope_ci": [
+          -0.2406302266750558,
+          0.13850628341304416
+        ],
+        "family": "trained"
+      },
+      "FastDetectGPT": {
+        "mean_z_high": -0.8310410204896868,
+        "mean_z_low": 0.1662082040979374,
+        "high_minus_low": -0.9972492245876241,
+        "slope_per_400elo": -0.16747733907730433,
+        "slope_ci": [
+          -0.30328482015961344,
+          0.08245588519314052
+        ],
+        "family": "statistical"
+      },
+      "Binoculars": {
+        "mean_z_high": -0.32834247053046517,
+        "mean_z_low": 0.06566849410609314,
+        "high_minus_low": -0.3940109646365583,
+        "slope_per_400elo": -0.04286228186793144,
+        "slope_ci": [
+          -0.3025941672192669,
+          0.18150429032821608
+        ],
+        "family": "statistical"
+      }
+    }
+  },
+  "detector_family": {
+    "DroidDetect": "trained",
+    "FastDetectGPT": "statistical",
+    "Binoculars": "statistical"
+  },
+  "skill_source": "codeforces_problem_difficulty"
+}

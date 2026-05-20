@@ -308,7 +308,9 @@ def main() -> None:
     print(f"cf samples: {len(cf)} ({(cf.species=='human').sum()} human, {(cf.species=='llm').sum()} llm)")
 
     analysis = {
-        "n_samples": {"cf": int(len(cf)), "legendary": int((df.dataset == "legendary").sum())},
+        "n_samples": {"cf": int(len(cf)), "legendary": int((df.dataset == "legendary").sum()),
+                      "atcoder": int((df.dataset == "atcoder").sum())},
+        "llm_models": sorted(cf[cf.species == "llm"].model.unique().tolist()),
         "cell_aurocs": cell_aurocs(cf),
         "delta_confound_ci": delta_confound_ci(cf),
         "within_species_slopes": within_species_slopes(cf),

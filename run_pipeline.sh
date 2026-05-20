@@ -51,5 +51,7 @@ fi
 log "03 detector scoring";   $PY scripts/03_run_detectors.py
 log "04 analysis";           $PY scripts/04_analyze.py
 log "05 figures";            $PY scripts/05_figures.py
-log "06 report";             $PY scripts/06_report.py
-log "DONE — see results/report.md, results/figures/, results/tables/paper_macros.json"
+log "06 build macros (variables only)"; $PY scripts/06_build_macros.py
+log "07 compile paper.tex -> paper.pdf"; ( cd paper && latexmk -pdf -interaction=nonstopmode paper.tex >/dev/null 2>&1 ) \
+  && echo "paper/paper.pdf built" || echo "WARN: latex compile failed (edit paper/paper.tex; macros are in paper/macros.tex)"
+log "DONE — edit prose in paper/paper.tex; numbers come from paper/macros.tex; figures in results/figures/"

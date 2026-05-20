@@ -9,3 +9,9 @@ __pycache__/
 *.pyc
 .venv/
 # keep results (figures/tables) tracked
+# latex build intermediates (keep paper.tex, macros.tex, paper.pdf)
+paper/*.aux
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.log
+paper/*.out
