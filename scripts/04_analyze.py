@@ -165,16 +165,33 @@ def within_species_slopes(cf: pd.DataFrame) -> dict:
 
         hp = human_slope(humans)
         lp = llm_slope(llms)
-        # cluster bootstrap over problems
+        # cluster bootstrap over problems — precompute per-problem numpy arrays (fast)
         hprobs = humans["problem_id"].unique(); lprobs = llms["problem_id"].unique()
+        # human: per problem, (z|hard mean components). store arrays of z by band.
+        h_by = {p: (g[g.band == "hard"][z].values, g[g.band == "easy"][z].values)
+                for p, g in humans.groupby("problem_id")}
+        # llm: per problem, (cond_rank array, z array)
+        l_by = {p: (g["condition"].map(COND_RANK).values.astype(float), g[z].values)
+                for p, g in llms.groupby("problem_id")}
+
+        def boot_human(samp):
+            hi = np.concatenate([h_by[p][0] for p in samp])
+            lo = np.concatenate([h_by[p][1] for p in samp])
+            if len(hi) == 0 or len(lo) == 0:
+                return np.nan
+            return hi.mean() - lo.mean()
+
+        def boot_llm(samp):
+            x = np.concatenate([l_by[p][0] for p in samp])
+            y = np.concatenate([l_by[p][1] for p in samp])
+            if np.std(x) == 0:
+                return np.nan
+            return float(np.polyfit(x, y, 1)[0])
+
         hb, lb = [], []
-        hg = {p: g for p, g in humans.groupby("problem_id")}
-        lg = {p: g for p, g in llms.groupby("problem_id")}
         for _ in range(N_BOOT):
-            hs = RNG.choice(hprobs, len(hprobs), replace=True)
-            ls = RNG.choice(lprobs, len(lprobs), replace=True)
-            hb.append(human_slope(pd.concat([hg[p] for p in hs])))
-            lb.append(llm_slope(pd.concat([lg[p] for p in ls])))
+            hb.append(boot_human(RNG.choice(hprobs, len(hprobs), replace=True)))
+            lb.append(boot_llm(RNG.choice(lprobs, len(lprobs), replace=True)))
         out[det] = {
             "human_slope": float(hp), "human_ci": [float(np.nanpercentile(hb, 2.5)), float(np.nanpercentile(hb, 97.5))],
             "llm_slope": float(lp), "llm_ci": [float(np.nanpercentile(lb, 2.5)), float(np.nanpercentile(lb, 97.5))],
