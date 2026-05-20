@@ -22,16 +22,13 @@ import torch.nn.functional as F
 from huggingface_hub import hf_hub_download
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
-TEXT_EMBEDDING_DIM = 768
-
-
 class TLModel(nn.Module):
     # verbatim forward path from the model card (mean-pool -> projection -> ReLU -> classifier)
-    def __init__(self, text_encoder, projection_dim, num_classes=2):
+    def __init__(self, text_encoder, projection_dim, num_classes=2, text_embedding_dim=768):
         super().__init__()
         self.text_encoder = text_encoder
         self.num_classes = num_classes
-        self.text_projection = nn.Linear(TEXT_EMBEDDING_DIM, projection_dim)
+        self.text_projection = nn.Linear(text_embedding_dim, projection_dim)
         self.classifier = nn.Linear(projection_dim, num_classes)
 
     def forward(self, input_ids=None, attention_mask=None):
@@ -44,13 +41,17 @@ class TLModel(nn.Module):
 
 def load_droiddetect(repo: str, device: str = "cuda"):
     """Build TLModel exactly as published and load the checkpoint with strict=True.
-    projection_dim is read from the checkpoint weights themselves (no hardcoding/guessing).
-    Returns (model, tokenizer)."""
+    All dims (projection_dim, num_classes, embedding dim -> base/large encoder) are READ FROM
+    the checkpoint weights — no hardcoding/guessing. Returns (model, tokenizer)."""
     sd = torch.load(hf_hub_download(repo, "pytorch_model.bin"), map_location="cpu")
     projection_dim = sd["text_projection.weight"].shape[0]
     num_classes = sd["classifier.weight"].shape[0]
-    encoder = AutoModel.from_config(AutoConfig.from_pretrained("answerdotai/ModernBERT-base"))
-    model = TLModel(encoder, projection_dim=projection_dim, num_classes=num_classes)
+    embed_dim = sd["text_projection.weight"].shape[1]                  # 768=base, 1024=large
+    base_encoder = {768: "answerdotai/ModernBERT-base",
+                    1024: "answerdotai/ModernBERT-large"}[embed_dim]
+    encoder = AutoModel.from_config(AutoConfig.from_pretrained(base_encoder))
+    model = TLModel(encoder, projection_dim=projection_dim, num_classes=num_classes,
+                    text_embedding_dim=embed_dim)
     # exactly the three forward-path submodules; the duplicate additional_loss.* encoder
     # (training-only) is intentionally excluded.
     keep = {k: v for k, v in sd.items()
