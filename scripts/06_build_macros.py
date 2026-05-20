@@ -99,6 +99,21 @@ def main() -> None:
             nm = camel(feat.replace("feat_", ""))
             put(f"Style{nm}Easy", d2s[feat]["easy"]); put(f"Style{nm}Hard", d2s[feat]["hard"])
 
+    # Format-artifact ablation (headline causal result)
+    abl_path = C.RESULTS / "format_ablation.json"
+    if abl_path.exists():
+        ab = json.loads(abl_path.read_text())["droiddetect_argmax"]
+        def fr(t, c): return ab[t][c]["flag_rate"]
+        put("AblDcHumanOrig", fr("original", "DroidCollection-human"))
+        put("AblDcHumanCanon", fr("ast_canon", "DroidCollection-human"))
+        put("AblDcHumanStrip", fr("strip_comments", "DroidCollection-human"))
+        put("AblMsHumanOrig", fr("original", "MatrixStudio-human"))
+        put("AblMsHumanCanon", fr("ast_canon", "MatrixStudio-human"))
+        put("AblDcMachineOrig", fr("original", "DroidCollection-machine"))
+        put("AblDcMachineCanon", fr("ast_canon", "DroidCollection-machine"))
+        put("AblGapOrig", fr("original", "DroidCollection-machine") - fr("original", "DroidCollection-human"))
+        put("AblGapCanon", fr("ast_canon", "DroidCollection-machine") - fr("ast_canon", "DroidCollection-human"))
+
     # DroidDetect in-distribution validation (proof the implementation is faithful)
     val_path = C.RESULTS / "droiddetect_validation.json"
     if val_path.exists():

@@ -1,0 +1,121 @@
+{
+  "n_target": 200,
+  "transform_success": {
+    "original": {
+      "MatrixStudio-human": 1.0,
+      "DroidCollection-human": 1.0,
+      "DroidCollection-machine": 1.0
+    },
+    "ast_canon": {
+      "MatrixStudio-human": 1.0,
+      "DroidCollection-human": 0.99,
+      "DroidCollection-machine": 0.875
+    },
+    "strip_comments": {
+      "MatrixStudio-human": 1.0,
+      "DroidCollection-human": 1.0,
+      "DroidCollection-machine": 0.995
+    }
+  },
+  "droiddetect_argmax": {
+    "original": {
+      "MatrixStudio-human": {
+        "flag_rate": 0.705,
+        "ci_lo": 0.64,
+        "ci_hi": 0.77,
+        "n": 200,
+        "mean_p_machine": 0.7026230018399656
+      },
+      "DroidCollection-human": {
+        "flag_rate": 0.01,
+        "ci_lo": 0.0,
+        "ci_hi": 0.025,
+        "n": 200,
+        "mean_p_machine": 0.01985009204596281
+      },
+      "DroidCollection-machine": {
+        "flag_rate": 0.985,
+        "ci_lo": 0.965,
+        "ci_hi": 1.0,
+        "n": 200,
+        "mean_p_machine": 0.9850171233341097
+      }
+    },
+    "ast_canon": {
+      "MatrixStudio-human": {
+        "flag_rate": 0.855,
+        "ci_lo": 0.8,
+        "ci_hi": 0.905,
+        "n": 200,
+        "mean_p_machine": 0.8515528398891911
+      },
+      "DroidCollection-human": {
+        "flag_rate": 0.5252525252525253,
+        "ci_lo": 0.45454545454545453,
+        "ci_hi": 0.5959595959595959,
+        "n": 198,
+        "mean_p_machine": 0.5283397159408637
+      },
+      "DroidCollection-machine": {
+        "flag_rate": 0.8628571428571429,
+        "ci_lo": 0.8114285714285714,
+        "ci_hi": 0.9085714285714286,
+        "n": 175,
+        "mean_p_machine": 0.8598036892632288
+      }
+    },
+    "strip_comments": {
+      "MatrixStudio-human": {
+        "flag_rate": 0.76,
+        "ci_lo": 0.7,
+        "ci_hi": 0.82,
+        "n": 200,
+        "mean_p_machine": 0.7520363381830976
+      },
+      "DroidCollection-human": {
+        "flag_rate": 0.03,
+        "ci_lo": 0.01,
+        "ci_hi": 0.055,
+        "n": 200,
+        "mean_p_machine": 0.036857697980012746
+      },
+      "DroidCollection-machine": {
+        "flag_rate": 0.9748743718592965,
+        "ci_lo": 0.949748743718593,
+        "ci_hi": 0.9949748743718593,
+        "n": 199,
+        "mean_p_machine": 0.9783487884262249
+      }
+    }
+  },
+  "statistical_mean_score": {
+    "original": {
+      "MatrixStudio-human": {
+        "FastDetectGPT": -0.6300128133047838,
+        "Binoculars": -0.8611498488485814
+      },
+      "DroidCollection-human": {
+        "FastDetectGPT": -1.0575623603537678,
+        "Binoculars": -0.8185819058120251
+      },
+      "DroidCollection-machine": {
+        "FastDetectGPT": -0.4863282083300874,
+        "Binoculars": -0.7671225568652154
+      }
+    },
+    "ast_canon": {
+      "MatrixStudio-human": {
+        "FastDetectGPT": -0.12678671711357312,
+        "Binoculars": -0.8064139193296432
+      },
+      "DroidCollection-human": {
+        "FastDetectGPT": -0.6573830838726759,
+        "Binoculars": -0.7971299174759123
+      },
+      "DroidCollection-machine": {
+        "FastDetectGPT": -0.31671844405255145,
+        "Binoculars": -0.7558143261500767
+      }
+    }
+  }
+}

@@ -26,29 +26,32 @@
 
 \begin{abstract}
 We ask whether AI-code detectors track author \textbf{species} (human vs.\ LLM) or
-author \textbf{skill/style}. Across \resNCf{} Codeforces Python samples (human solutions
-stratified by problem difficulty; LLM solutions from \resNModels{} models under
-natural/novice/expert prompts) and three detectors spanning the trained (DroidDetect)
-and statistical (Fast-DetectGPT, Binoculars) families, the answer is two-sided.
-\textbf{(1)} On the \skillaxis{} axis the confound is \emph{absent}: the skill-matched
-vs.\ mismatched AUROC gap is $\Delta_{\text{confound}}\!\approx\!\resMeanDelta{}$, and
-within-species score slopes run \emph{against} the naive skill prediction (mean human
-slope $\resMeanHumanSlope{}$ SD). This vindicates the concern that terse
-competitive-programming style is the stylistic \emph{opposite} of the idiomatic
-``senior-engineer'' register that RLHF code models imitate.
-\textbf{(2)} The dominant effect, however, is not skill but \textbf{cross-source
-generalization failure of the trained detector}. As a control, our DroidDetect load
-reproduces the authors' performance on their \emph{own} DroidCollection Python test data
-(AUROC \resDroidInDistAUROC{}, human false-positive rate \resDroidInDistHumanFPR{}). Yet on
-clean human Codeforces Python from a \emph{different} source (MatrixStudio) it labels
-\textbf{\resDroidArgmaxCfHumanFPR{}} of ordinary human code AI at its native argmax operating
-point, and \resDroidArgmaxLegendary{} of contamination-free pre-LLM elite code (Torvalds'
-\texttt{git}, antirez's Redis, Hipp's SQLite, CPython)---with the most idiomatic code
-(CPython, \resDroidArgmaxCPythonCore{}) highest. So a near-perfect in-distribution detector
-becomes unusable on out-of-distribution human code, with a secondary idiomatic-style
-gradient on top. The zero-shot statistical detectors, having no training distribution, do
-not show this collapse. Deployment implication: the operative risk is brittle
-cross-distribution false positives, not competitive skill.
+author \textbf{skill/style}, and arrive at a sharper answer: the strongest available trained
+detector tracks neither --- it largely tracks \textbf{code formatting}.
+\textbf{(1) Headline.} A SOTA trained detector (DroidDetect, ModernBERT) that we load
+faithfully---reproducing the authors' performance on their \emph{own} DroidCollection Python
+test data (AUROC \resDroidInDistAUROC{}, \resDroidInDistHumanFPR{} human false-positive
+rate)---collapses under a \emph{semantics-preserving} reformatting. Passing its own human
+test code through \texttt{ast.unparse} (which normalizes whitespace and drops comments but
+preserves the program) flips its false-positive rate from \textbf{\resAblDcHumanOrig{}} to
+\textbf{\resAblDcHumanCanon{}}, and shrinks the human/machine separation from
+\resAblGapOrig{} to \resAblGapCanon{}. Stripping comments \emph{alone} barely moves it
+(\resAblDcHumanStrip{}), so the signal is whitespace/layout. The detector has learned
+``idiosyncratic human formatting ${=}$ human, clean formatting ${=}$ machine,'' not
+human-vs-AI content. The zero-shot statistical detectors (Fast-DetectGPT, Binoculars) are
+far more formatting-robust.
+\textbf{(2) Consequence.} This formatting shortcut explains a dramatic cross-source failure:
+on tidy human Codeforces Python from a \emph{different} scrape (MatrixStudio) the same model
+labels \resDroidArgmaxCfHumanFPR{} of ordinary human code AI, and \resDroidArgmaxLegendary{}
+of contamination-free pre-LLM elite code (Torvalds' \texttt{git}, antirez's Redis, Hipp's
+SQLite, CPython) --- not because that code is AI-like or expert, but because its formatting
+differs from the detector's training-human formatting.
+\textbf{(3) Skill.} On the \skillaxis{} axis the skill confound is \emph{absent}
+($\Delta_{\text{confound}}\!\approx\!\resMeanDelta{}$; within-species slopes run against the
+naive prediction, mean human slope $\resMeanHumanSlope{}$ SD), consistent with terse
+competitive style being the stylistic opposite of idiomatic ``senior-engineer'' code.
+\textbf{Deployment implication:} an integrity tool calibrated on one corpus can be made to
+flag the majority of legitimate human code by a code formatter.
 \end{abstract}
 
 \section{Question and hypotheses}
@@ -78,7 +81,32 @@ skill axis) is the mechanism test; $\Delta_{\text{confound}}$ is reported per de
 
 \section{Results}
 
-\subsection{The confound is absent on the competitive-skill axis}
+\subsection{DroidDetect classifies formatting, not authorship (headline)}
+We first establish the detector is loaded correctly: on the authors' own DroidCollection
+Python test set it scores AUROC \resDroidInDistAUROC{} with a \resDroidInDistHumanFPR{}
+human false-positive rate and \resDroidInDistMachineFlag{} machine recall---reproducing the
+published numbers. We then apply a \emph{semantics-preserving} transform to the input code:
+\texttt{ast.unparse(ast.parse(code))}, which re-emits the identical program with canonical
+whitespace and with comments/docstrings removed. The effect on DroidDetect's predictions is
+dramatic (Fig.~\ref{fig:ablation}). On its \emph{own} human test data the fraction called
+``machine'' rises from \resAblDcHumanOrig{} (raw) to \resAblDcHumanCanon{} (canonicalized);
+the human$\leftrightarrow$machine flag-rate gap collapses from \resAblGapOrig{} to
+\resAblGapCanon{}. Removing comments alone leaves it almost unchanged
+(\resAblDcHumanStrip{}), so the operative signal is \textbf{whitespace/layout}, not
+comments. In other words, the detector has largely learned ``idiosyncratic human formatting
+${=}$ human, clean/canonical formatting ${=}$ machine''---a surface feature, not authorship.
+The statistical detectors' scores shift far less under the same transform.
+
+\begin{figure}[h]\centering
+\includegraphics[width=0.95\linewidth]{fig7_format_ablation.png}
+\caption{Semantics-preserving canonicalization (\texttt{ast.unparse}) flips DroidDetect's
+verdict on the authors' \emph{own} human test data from \resAblDcHumanOrig{} to
+\resAblDcHumanCanon{} ``machine,'' collapsing the human/machine gap. The signal is
+whitespace/layout (comment-stripping alone barely moves it).}
+\label{fig:ablation}
+\end{figure}
+
+\subsection{The skill confound is absent on the competitive-skill axis}
 Table~\ref{tab:slopes} gives within-species slopes (SD units). Under H$_\text{skill}$ both
 columns should be positive; instead the human slope is \emph{negative} for DroidDetect
 ($\resHumanSlopeDroidDetect{}$, CI $[\resHumanSlopeLoDroidDetect{},\resHumanSlopeHiDroidDetect{}]$)
@@ -135,8 +163,8 @@ Python test data our load achieves AUROC \resDroidInDistAUROC{} with a
 recall---reproducing the published performance. So what follows is a property of the model,
 not a loading bug.
 
-DroidDetect is a 2-class softmax classifier; its actual prediction is argmax
-(equivalently $P(\text{machine})>0.5$), with no tunable threshold. We report it at that
+DroidDetect is a 2-class softmax classifier; its actual prediction is the
+\emph{argmax} over $\{$human, machine$\}$, with no tunable threshold. We report it at that
 native operating point and measure its \emph{true} false-positive rate on ordinary human
 code rather than forcing one. On clean human Codeforces Python from a \emph{different} source
 (MatrixStudio) the FPR explodes from \resDroidInDistHumanFPR{} (in-distribution) to
@@ -196,20 +224,21 @@ wide CIs.
 \end{itemize}
 
 \section{Conclusion}
-Two findings, in order of importance. First and dominant: the trained detector is
-\textbf{not safe outside its training distribution}. Faithfully loaded (it scores AUROC
-\resDroidInDistAUROC{} with a \resDroidInDistHumanFPR{} FPR on the authors' own data), it
-nonetheless labels \resDroidArgmaxCfHumanFPR{} of ordinary human Codeforces code from a
-different source---and \resDroidArgmaxLegendary{} of provably-human pre-LLM elite code
-(CPython \resDroidArgmaxCPythonCore{})---as machine-generated. The zero-shot statistical
-detectors do not collapse this way. Second and secondary: ``does detection reduce to
-\emph{skill} detection?'' --- not to competitive-programming skill (the confound is absent
-and mildly inverts, because terse competitive style is the opposite of idiomatic style), but
-a weak idiomatic-style gradient rides on top of the domain-shift over-flagging (most-polished
-CPython flagged most). The deployment implication is that the first-order danger is brittle
-cross-distribution false positives---an academic-integrity tool calibrated on one corpus can
-flag the majority of legitimate human code from another. The clean follow-ups: evaluate
-trained detectors across held-out human \emph{sources}, and study the idiomatic-style axis
-with an author-reputation cohort on production code (e.g.\ GitHub by maintainer reputation).
+The headline is mechanistic: the strongest available trained code detector is, to first
+order, a \textbf{formatting classifier}. Faithfully loaded (AUROC \resDroidInDistAUROC{},
+\resDroidInDistHumanFPR{} FPR on the authors' own data), it nonetheless flips from
+\resAblDcHumanOrig{} to \resAblDcHumanCanon{} ``machine'' on that \emph{same} human data
+under a semantics-preserving reformatting---it keys on whitespace/layout, not authorship.
+That shortcut explains the rest: \resDroidArgmaxCfHumanFPR{} of ordinary human Codeforces
+code from a different scrape, and \resDroidArgmaxLegendary{} of provably-human pre-LLM elite
+code (CPython \resDroidArgmaxCPythonCore{}), are flagged not because they are AI-like or
+expert but because their formatting differs from the training-human formatting. The zero-shot
+statistical detectors do not collapse this way. Secondarily, ``does detection reduce to
+\emph{skill}?'' --- not to competitive-programming skill (the confound is absent and mildly
+inverts). The deployment implication is stark: an integrity tool of this kind can be made to
+flag the majority of legitimate human code simply by running it through a code formatter, and
+its reported accuracy---all i.i.d., with no fixed-FPR or calibration reporting---hides this.
+Clean follow-ups: evaluate trained detectors under format-normalization and across held-out
+human \emph{sources}, and report calibrated fixed-FPR operating points.
 
 \end{document}

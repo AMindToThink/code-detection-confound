@@ -189,7 +189,36 @@ def fig_atcoder():
     plt.close(fig)
 
 
+def fig_format_ablation():
+    import json as _json
+    p = C.RESULTS / "format_ablation.json"
+    if not p.exists():
+        return
+    A2 = _json.loads(p.read_text())
+    dd = A2["droiddetect_argmax"]
+    corpora = ["MatrixStudio-human", "DroidCollection-human", "DroidCollection-machine"]
+    transforms = ["original", "ast_canon", "strip_comments"]
+    tlabels = {"original": "original", "ast_canon": "canonicalized\n(ast.unparse)", "strip_comments": "comments\nstripped"}
+    tcol = {"original": "#4a544f", "ast_canon": "#a23a1f", "strip_comments": "#b48a3a"}
+    fig, ax = plt.subplots(figsize=(9, 4.5))
+    x = np.arange(len(corpora)); w = 0.26
+    for k, t in enumerate(transforms):
+        vals = [dd[t][c]["flag_rate"] for c in corpora]
+        err = [[max(dd[t][c]["flag_rate"] - dd[t][c]["ci_lo"], 0) for c in corpora],
+               [max(dd[t][c]["ci_hi"] - dd[t][c]["flag_rate"], 0) for c in corpora]]
+        ax.bar(x + (k - 1) * w, vals, w, yerr=err, capsize=3, color=tcol[t], label=tlabels[t])
+    ax.set_xticks(x); ax.set_xticklabels(["MatrixStudio\nhuman", "DroidCollection\nhuman\n(in-distribution)", "DroidCollection\nmachine"], fontsize=9)
+    ax.set_ylabel("fraction called MACHINE by DroidDetect (argmax)")
+    ax.set_ylim(0, 1)
+    ax.set_title("DroidDetect is a formatting classifier: semantics-preserving canonicalization\n"
+                 "flips its OWN human test data from 1% to 53% 'machine' (bars = bootstrap 95% CI)")
+    ax.legend(title="code transform", fontsize=9)
+    fig.savefig(C.FIGURES / "fig7_format_ablation.png")
+    plt.close(fig)
+
+
 def main():
+    fig_format_ablation()
     fig_auroc_heatmaps()
     fig_delta_confound()
     fig_within_species_slopes()
