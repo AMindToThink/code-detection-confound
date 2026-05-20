@@ -1,0 +1,9 @@
+{
+  "lang": "Python",
+  "n_human": 120,
+  "n_machine": 120,
+  "human_mean_p_machine": 0.02254124642155754,
+  "human_flag_rate_argmax": 0.016666666666666666,
+  "machine_flag_rate_argmax": 0.9833333333333333,
+  "auroc_in_distribution": 0.9990972222222223
+}

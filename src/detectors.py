@@ -27,62 +27,30 @@ MAX_TOKENS = 1024            # truncation for speed; code rarely needs more for 
 
 
 # ====================================================================== DroidDetect
-class _DroidModel(torch.nn.Module):
-    """Faithful reconstruction of project-droid's TLModel inference path.
-
-    forward: emb = mean_pool(encoder(x).last_hidden_state)      [B, 768]
-             proj = relu(text_projection(emb))                  [B, 256]
-             logits = classifier(proj)                          [B, 2]
-    Label map (from the model card): 0 = HUMAN_GENERATED, 1 = MACHINE_GENERATED.
-    NOTE: projection_dim is 256 in the *checkpoint weights* (config.json's 128 is stale).
-    """
-
-    def __init__(self) -> None:
-        super().__init__()
-        cfg = AutoConfig.from_pretrained("answerdotai/ModernBERT-base")
-        self.text_encoder = AutoModel.from_config(cfg)
-        self.text_projection = torch.nn.Linear(768, 256)
-        self.classifier = torch.nn.Linear(256, 2)
-
-    def forward(self, input_ids, attention_mask):
-        h = self.text_encoder(input_ids=input_ids, attention_mask=attention_mask).last_hidden_state
-        emb = h.mean(dim=1)
-        proj = F.relu(self.text_projection(emb))
-        return self.classifier(proj)
+# Uses the authors' VERBATIM TLModel class (src/vendor/droiddetect_model.py), loaded with
+# strict=True. Verified: AUROC 1.000 / 1.3% human-FPR on the authors' own DroidCollection
+# Python test samples. DroidDetect's training/eval truncation length is 512 (paper Table 10).
+DROID_MAX_TOKENS = 512
 
 
 class DroidDetect:
     name = "DroidDetect"
 
     def __init__(self) -> None:
-        from huggingface_hub import hf_hub_download, list_repo_files
-        files = list_repo_files(C.DROIDDETECT_REPO)
-        st = [f for f in files if f.endswith(".safetensors")]
-        if st:
-            from safetensors.torch import load_file
-            sd = load_file(hf_hub_download(C.DROIDDETECT_REPO, st[0]))
-        else:
-            wf = next(f for f in files if f.endswith(".bin"))
-            sd = torch.load(hf_hub_download(C.DROIDDETECT_REPO, wf), map_location="cpu")
-        keep = {k: v for k, v in sd.items()
-                if k.startswith(("text_encoder.", "text_projection.", "classifier."))}
-        self.model = _DroidModel()
-        missing, unexpected = self.model.load_state_dict(keep, strict=False)
-        # the only allowed "missing" are buffers ModernBERT recreates; assert head loaded
-        assert not any("classifier" in m or "projection" in m for m in missing), missing
-        self.model.eval().to(DEVICE).half()
-        self.tok = AutoTokenizer.from_pretrained("answerdotai/ModernBERT-base")
+        from src.vendor.droiddetect_model import load_droiddetect
+        self.model, self.tok = load_droiddetect(C.DROIDDETECT_REPO, device=DEVICE)
 
     @torch.no_grad()
-    def score_batch(self, codes: list[str], bs: int = 32) -> list[float]:
+    def score_batch(self, codes: list[str], bs: int = 1) -> list[float]:
+        # Score per-sample (no padding): the model's mean-pool is UNMASKED, so padding
+        # tokens would contaminate the pooled vector. One sequence at a time keeps the
+        # pool over real tokens only — matching single-example inference.
         out: list[float] = []
-        for i in range(0, len(codes), bs):
-            chunk = codes[i:i + bs]
-            enc = self.tok(chunk, return_tensors="pt", truncation=True,
-                           max_length=MAX_TOKENS, padding=True).to(DEVICE)
+        for code in codes:
+            enc = self.tok(code, return_tensors="pt", truncation=True,
+                           max_length=DROID_MAX_TOKENS).to(DEVICE)
             logits = self.model(enc["input_ids"], enc["attention_mask"])
-            p_machine = F.softmax(logits.float(), dim=-1)[:, 1]   # P(class 1 = MACHINE)
-            out.extend(p_machine.cpu().tolist())
+            out.append(F.softmax(logits.float(), dim=-1)[0, 1].item())   # P(MACHINE)
         return out
 
 
