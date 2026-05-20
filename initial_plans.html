@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Skill-Quality Confound in AI Code Detectors — Research Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f3ede0;
+  --paper-tint: #ebe3d2;
+  --ink: #1d2424;
+  --ink-soft: #4a544f;
+  --rust: #a23a1f;
+  --rust-soft: #c5532b;
+  --gold: #b48a3a;
+  --rule: #c5b89a;
+  --highlight: #f7e9c1;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.55;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(180,138,58,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(162,58,31,0.04) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+.page {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 80px 56px 120px;
+  position: relative;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  top: 80px; bottom: 120px;
+  left: 32px;
+  width: 1px;
+  background: var(--rule);
+  opacity: 0.4;
+}
+
+header {
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 28px;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.kicker {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+h1 {
+  font-family: "Fraunces", serif;
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1;
+  font-weight: 500;
+  font-size: 56px;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0 0 24px;
+  color: var(--ink);
+}
+
+h1 em {
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1;
+  color: var(--rust);
+}
+
+.dek {
+  font-family: "Newsreader", serif;
+  font-size: 22px;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  font-weight: 300;
+  max-width: 600px;
+  margin: 0;
+}
+
+.byline {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+  margin-top: 32px;
+  display: flex;
+  gap: 32px;
+}
+
+.byline span strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+h2 {
+  font-family: "Fraunces", serif;
+  font-variation-settings: "opsz" 60, "SOFT" 50;
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 64px 0 20px;
+  color: var(--ink);
+  position: relative;
+}
+
+h2::before {
+  content: attr(data-section);
+  position: absolute;
+  left: -56px;
+  top: 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--rust);
+  letter-spacing: 0.1em;
+}
+
+h3 {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: 19px;
+  letter-spacing: -0.005em;
+  margin: 36px 0 12px;
+  color: var(--ink);
+}
+
+p {
+  margin: 0 0 18px;
+}
+
+p .lead-cap {
+  font-family: "Fraunces", serif;
+  font-weight: 600;
+  font-size: 1.05em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--rust);
+}
+
+ul, ol {
+  margin: 0 0 24px;
+  padding-left: 24px;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+ul li::marker {
+  color: var(--rust);
+}
+
+code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.85em;
+  background: var(--paper-tint);
+  padding: 1px 6px;
+  border-radius: 2px;
+  color: var(--ink);
+}
+
+.math {
+  font-family: "Newsreader", serif;
+  font-style: italic;
+  font-feature-settings: "ss01";
+}
+
+.callout {
+  background: var(--paper-tint);
+  border-left: 3px solid var(--rust);
+  padding: 22px 28px;
+  margin: 32px 0;
+  font-size: 16px;
+}
+
+.callout .label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.hyp-grid {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 12px 20px;
+  margin: 28px 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.hyp-grid .tag {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--rust);
+  letter-spacing: 0.05em;
+}
+
+.hyp-grid .desc {
+  font-family: "Newsreader", serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0 32px;
+  font-size: 15px;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 14px 10px 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+th {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rust);
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 8px;
+}
+
+td.mono {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+}
+
+.formula {
+  font-family: "Newsreader", serif;
+  font-style: italic;
+  font-size: 19px;
+  text-align: center;
+  margin: 28px auto;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+.formula .sub {
+  font-size: 0.7em;
+  vertical-align: sub;
+  font-style: normal;
+}
+
+.predictions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 28px 0;
+}
+
+.pred-card {
+  padding: 22px 24px;
+  border: 1px solid var(--rule);
+  background: rgba(255,255,255,0.3);
+}
+
+.pred-card .head {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.pred-card.confound .head { color: var(--rust); }
+.pred-card.null .head { color: var(--gold); }
+
+.pred-card ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.pred-card li {
+  margin-bottom: 8px;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 12px 24px;
+  margin: 24px 0;
+}
+
+.timeline .when {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  color: var(--rust);
+  letter-spacing: 0.05em;
+  padding-top: 2px;
+}
+
+.timeline .what {
+  font-size: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px dotted var(--rule);
+}
+
+.timeline .what:last-child { border-bottom: none; }
+
+footer {
+  margin-top: 80px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ornament {
+  text-align: center;
+  margin: 48px 0;
+  color: var(--rust);
+  font-size: 14px;
+  letter-spacing: 1em;
+}
+
+@media (max-width: 720px) {
+  .page { padding: 48px 28px 80px; }
+  .page::before { display: none; }
+  h1 { font-size: 40px; }
+  h2::before { display: none; }
+  .predictions { grid-template-columns: 1fr; }
+  .timeline { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="kicker">
+    <span>Research Memo &nbsp;⋄&nbsp; v0.1</span>
+    <span>For Claude Code</span>
+  </div>
+  <h1>Does AI Code Detection Reduce to <em>Skill</em> Detection?</h1>
+  <p class="dek">A pre-registered experiment to measure how much of an AI code detector's signal is explained by author skill rather than by author species.</p>
+  <div class="byline">
+    <span><strong>Topic</strong> &nbsp; Detection robustness</span>
+    <span><strong>Wall clock</strong> &nbsp; 24–48 hr autonomous</span>
+    <span><strong>Compute</strong> &nbsp; local + existing credits</span>
+  </div>
+</header>
+
+<h2 data-section="§1">Motivation</h2>
+
+<p><span class="lead-cap">Modern code-detection</span> benchmarks treat human code as a single distribution and AI code as another. But humans vary enormously in skill, and post-RLHF code models are trained to imitate the upper tail of that human distribution. The reward models behind code-tuned LLMs are scored by senior engineers picking idiomatic, well-typed, well-documented code. If the LLM and the senior engineer have been pulled toward the same attractor in style-space, then "AI vs human" detectors may largely be learning "expert vs novice" instead.</p>
+
+<p>This experiment tests that directly by measuring detector F1 inside skill-matched cells rather than on the full population. If detectors are species classifiers, their performance should hold up when humans and LLMs are matched on skill. If they are skill classifiers, performance should collapse on the matched diagonal and the headline F1 numbers reported in the literature are inflated by easy cross-skill comparisons.</p>
+
+<div class="callout">
+  <div class="label">Operational stakes</div>
+  If the confound is real and large, the academic-integrity use case is structurally broken — detectors would penalize the strongest students alongside the cheaters, and miss weak students who prompt the model to write badly.
+</div>
+
+<h2 data-section="§2">Hypotheses</h2>
+
+<div class="hyp-grid">
+  <div class="tag">H<sub>species</sub></div>
+  <div class="desc">Detectors are species classifiers. F1 is approximately constant across all (human-skill, LLM-style) cells. Skill-matched and skill-mismatched cells both achieve the headline F1 reported on standard benchmarks.</div>
+
+  <div class="tag">H<sub>skill</sub></div>
+  <div class="desc">Detectors are skill classifiers. F1 collapses toward random in skill-matched cells (high-skill humans vs naturally-prompted LLMs; low-skill humans vs novice-prompted LLMs) while remaining high in skill-mismatched cells. <em>This is the pre-registered prediction.</em></div>
+
+  <div class="tag">H<sub>mixed</sub></div>
+  <div class="desc">Detectors learn a weighted combination of style and species cues. F1 degrades in skill-matched cells but not all the way to random. The degree of collapse quantifies the confound.</div>
+
+  <div class="tag">H<sub>cond</sub></div>
+  <div class="desc">Effect exists but varies with problem difficulty, language, or detector family.</div>
+</div>
+
+<h2 data-section="§3">Data Sources</h2>
+
+<h3>Human code, stratified by skill</h3>
+<p>Primary source is the Codeforces public API. Each user has an Elo-style rating; each accepted submission carries the user's rating at submission time, the problem ID, the language, and the source text. Restrict to Python and C++ initially for coverage and tractability.</p>
+
+<table>
+  <tr><th>Rating band</th><th>Tier name</th><th>Target solutions / problem</th></tr>
+  <tr><td class="mono">800–1199</td><td>Newbie</td><td>20</td></tr>
+  <tr><td class="mono">1200–1599</td><td>Specialist / Pupil</td><td>20</td></tr>
+  <tr><td class="mono">1600–1899</td><td>Expert</td><td>20</td></tr>
+  <tr><td class="mono">1900–2199</td><td>Candidate Master</td><td>20</td></tr>
+  <tr><td class="mono">2200+</td><td>Master &amp; above</td><td>20</td></tr>
+</table>
+
+<p>Sample roughly 100 problems uniformly across difficulty bands (problem rating 800 to 2800). The cross-product gives ~10,000 human samples with known author rating, problem ID, problem difficulty, and language.</p>
+
+<h3>LLM code on the same problems</h3>
+<p>For every problem in the human set, generate solutions with a panel of models. Prompt minimally with the problem statement and no skill conditioning. Use each model's recommended default sampling parameters from its system card or release documentation, with n = 5 samples per (problem, model). Filter to accepted solutions only, since Codeforces only exposes accepted submissions on the human side.</p>
+
+<ul>
+  <li><strong>Frontier RLHF</strong> &nbsp; GPT-4o, Claude Sonnet 4.6, Gemini 2.5 Pro</li>
+  <li><strong>Code-specialized</strong> &nbsp; DeepSeek-Coder-V3, Qwen2.5-Coder-32B</li>
+  <li><strong>Smaller / open</strong> &nbsp; Llama-3.1-8B-Instruct, CodeLlama-7B</li>
+</ul>
+
+<h3>The novice-prompted condition</h3>
+<p>Generate a second LLM set with explicit novice-style prompting, holding model and problem fixed.</p>
+<ul>
+  <li><code>novice_prompt</code> &nbsp; "Solve this using only basic constructs. No type hints, single-letter variables where natural, minimal comments. Write like a beginner who is still learning the language."</li>
+</ul>
+<p>This is the critical condition. If detectors are skill classifiers, <code>novice_prompt</code> LLM output should look like low-skill human code and detector F1 against low-skill humans should collapse. An <code>expert_prompt</code> condition is omitted from the main analysis on the prior assumption that naturally-prompted RLHF'd LLMs are already at the senior-engineer attractor, so an explicit expert prompt would produce a distribution indistinguishable from natural. Worth a quick sanity check at the end but not load-bearing.</p>
+
+<h2 data-section="§4">Detectors</h2>
+
+<h3>Trained / supervised</h3>
+<table>
+  <tr><th>Detector</th><th>Access</th><th>Why included</th></tr>
+  <tr><td>DroidDetect-CLS Base</td><td class="mono">retrain</td><td>Reported SOTA on DroidCollection; ModernBERT-149M</td></tr>
+  <tr><td>UniXcoder-FT</td><td class="mono">retrain</td><td>Cross-modal code encoder, strongest 4-class F1 in the paper</td></tr>
+  <tr><td>GPT-Sniffer-FT</td><td class="mono">retrain</td><td>CodeBERT-based, widely cited baseline</td></tr>
+  <tr><td>Pangram (Code)</td><td class="mono">API</td><td>Commercial deployment, trained on recent proprietary data, claims low FPR</td></tr>
+</table>
+
+<h3>Statistical / zero-shot</h3>
+<table>
+  <tr><th>Detector</th><th>Access</th><th>Why included</th></tr>
+  <tr><td>Fast-DetectGPT</td><td class="mono">local</td><td>Log-probability curvature under a base LLM; no fine-tuning bias</td></tr>
+  <tr><td>Binoculars</td><td class="mono">local</td><td>Cross-perplexity ratio between two base LLMs</td></tr>
+</table>
+
+<p>The family split matters for interpreting the results. Trained detectors learn whatever discriminates AI from human in their training data; if that data is recent (DroidCollection was released in 2025), the decision boundary is calibrated to modern post-RLHF LLM output, which means the senior-engineer attractor sits squarely inside the "AI" region of the learned space. Statistical detectors instead query a base LLM about how surprised it would be by the code, which is a different mechanism that may or may not pick up the same confound.</p>
+
+<p>NanoDroid is the detector from the paper under review and is not used here. The paper is anonymous and under double-blind review, so even a public repo (if one exists) should not be searched out, since doing so risks deanonymizing the authors.</p>
+
+<p>For each detector, store the raw pre-threshold logit, not the binarized label. This lets the analysis use a continuous response and allows threshold tuning per cell.</p>
+
+<h2 data-section="§5">Analysis</h2>
+
+<h3>Primary analysis &nbsp;⋄&nbsp; skill-stratified F1</h3>
+<p>Build a 5×2 grid of evaluation cells. Rows are human rating bands (newbie, pupil, expert, candidate master, master+). Columns are LLM prompting conditions (natural, novice). Each cell contains the human samples from that rating band and the LLM samples generated under that condition.</p>
+
+<p>For each (detector, language, cell) triple, evaluate binary classification F1. The headline output is a 5×2 heatmap of F1 per detector. The two diagnostic comparisons are:</p>
+
+<ul>
+  <li><strong>Skill-matched cells.</strong> &nbsp; High-rated humans vs naturally-prompted LLMs (top-right). Low-rated humans vs novice-prompted LLMs (bottom-left). Under H<sub>skill</sub>, F1 collapses toward 0.5 here.</li>
+  <li><strong>Skill-mismatched cells.</strong> &nbsp; Low-rated humans vs natural LLMs (bottom-right). High-rated humans vs novice LLMs (top-left). Under both H<sub>species</sub> and H<sub>skill</sub>, F1 stays high.</li>
+</ul>
+
+<p>The headline statistic is the F1 gap between mismatched and matched cells, averaged across detectors.</p>
+
+<div class="formula">
+  Δ<sub>confound</sub> &nbsp;=&nbsp; F1<sub>mismatched</sub> &nbsp;−&nbsp; F1<sub>matched</sub>
+</div>
+
+<p>A large positive Δ is direct evidence that the detector's apparent performance on standard benchmarks is propped up by easy cross-skill comparisons. A Δ near zero means the detector is genuinely doing species classification.</p>
+
+<h3>Secondary analysis &nbsp;⋄&nbsp; continuous regression</h3>
+<p>For each (detector, language) cell, fit a mixed-effects model on human-only data to get a continuous view.</p>
+
+<div class="formula">
+  logit&nbsp;P(AI)<span class="sub">i</span> &nbsp;=&nbsp; α &nbsp;+&nbsp; β · rating<span class="sub">i</span> &nbsp;+&nbsp; γ · difficulty<span class="sub">p(i)</span> &nbsp;+&nbsp; u<span class="sub">p(i)</span> &nbsp;+&nbsp; ε<span class="sub">i</span>
+</div>
+
+<p>where <span class="math">u<span class="sub">p</span></span> is a per-problem random intercept. Report <span class="math">β</span> in units of logit-P(AI) per 400 rating points (one Elo tier), with bootstrap 95% CI over resampled problems. This complements the F1 cells with a continuous gradient and reveals whether the skill axis is smooth or discrete.</p>
+
+<h3>Robustness checks</h3>
+<ul>
+  <li><strong>Per-problem F1.</strong> &nbsp; Restrict each F1 cell to problems where both rating-band humans and the relevant LLM condition produced accepted solutions. Removes the obvious confound that high-rated users tend to attempt harder problems.</li>
+  <li><strong>Monotonicity.</strong> &nbsp; Isotonic regression of P(AI) on rating. Test the null of flat fit versus monotone fit via likelihood ratio.</li>
+  <li><strong>Calibration.</strong> &nbsp; Per-tier accuracy plot. If accuracy degrades monotonically with rating, this is direct evidence of the confound at the operating point.</li>
+  <li><strong>Geometric view.</strong> &nbsp; Penultimate-layer embeddings of all samples, UMAP'd. Color by (a) class label, (b) rating, (c) language. If the rating gradient aligns with the AI vs human axis, the confound is visible in the representation, not just at the output.</li>
+  <li><strong>Optional sanity check.</strong> &nbsp; Generate a small <code>expert_prompt</code> set and verify that its detector logits are statistically indistinguishable from the natural-prompt LLM set. If they differ, the "natural is already at the senior attractor" assumption fails and the design needs revision.</li>
+</ul>
+
+<h2 data-section="§6">Predictions</h2>
+
+<div class="predictions">
+  <div class="pred-card confound">
+    <div class="head">⤧ &nbsp; If H<sub>skill</sub> holds</div>
+    <ul>
+      <li>F1 in skill-matched cells collapses to &lt; 0.65 on at least 4 of 6 detectors</li>
+      <li>F1 in skill-mismatched cells stays at the published headline level (≥ 0.90)</li>
+      <li>Δ<sub>confound</sub> ≥ 0.20 averaged across detectors</li>
+      <li>Master-tier humans misclassified as AI in ≥ 25% of cases when compared against natural-prompt LLMs</li>
+      <li>Novice-prompted LLMs misclassified as human in ≥ 25% of cases when compared against newbie humans</li>
+      <li>Regression slope β: substantial and positive, with logit-P(AI) shifting by ≥ 0.5 across the rating range</li>
+    </ul>
+  </div>
+  <div class="pred-card null">
+    <div class="head">○ &nbsp; If H<sub>species</sub> holds</div>
+    <ul>
+      <li>F1 approximately constant across all 5×2 cells</li>
+      <li>Δ<sub>confound</sub> &lt; 0.05</li>
+      <li>Novice prompts do not meaningfully shift detector logits on LLM output</li>
+      <li>Regression β near zero, slopes flat across rating bands</li>
+    </ul>
+  </div>
+</div>
+
+<p>H<sub>mixed</sub> is the most likely outcome in practice. Some confound, but not total collapse. The headline number then becomes Δ<sub>confound</sub>, which quantifies how much of the reported F1 is "free" cross-skill signal. The reason to pre-register thresholds is that any of the three outcomes is publishable. A clean H<sub>skill</sub> result reframes the field; a clean H<sub>species</sub> result strengthens the deployment case for current detectors; H<sub>mixed</sub> with a quantified Δ is the most likely scientific contribution.</p>
+
+<div class="callout">
+  <div class="label">Between-family prediction</div>
+  Trained detectors should exhibit substantially larger Δ<sub>confound</sub> than statistical detectors. Supervised models learn the decision boundary that best separates their training distribution, and if that training data is recent enough to include modern post-RLHF code, "AI" effectively means "senior-engineer attractor" in the learned representation. Statistical detectors measure log-probability curvature under a base LLM, which is a different signal — possibly correlated with skill, but not directly trained against a recent AI-vs-human label. The expected ordering is Pangram ≈ DroidDetect ≈ UniXcoder &gt; GPT-Sniffer &gt; Binoculars ≈ Fast-DetectGPT, with the trained-vs-statistical gap as the key diagnostic.
+</div>
+
+<h2 data-section="§7">Implementation Plan</h2>
+
+<div class="timeline">
+  <div class="when">Hr 0–4</div>
+  <div class="what">
+    <strong>Data collection.</strong> Pull Codeforces problems and submissions via the public API. Stratified sample across rating bands and problem difficulties. Store source, rating-at-submission, problem ID, language. Deduplicate near-duplicate solutions within users. Mostly rate-limit-bound.
+  </div>
+
+  <div class="when">Hr 4–16</div>
+  <div class="what">
+    <strong>LLM generation.</strong> Submit each problem to each model under natural and novice conditions, n = 5 each, using model-default sampling. Parallelize across providers. Validate accepted solutions either via the Codeforces submission interface or a local judge. Most wall-clock is API rate limit waiting.
+  </div>
+
+  <div class="when">Hr 16–28</div>
+  <div class="what">
+    <strong>Detector preparation.</strong> Train DroidDetect-CLS Base, UniXcoder-FT, GPT-Sniffer-FT on DroidCollection per their published protocols. Run two in parallel across the 2×RTX8000. Wire up Pangram API, Fast-DetectGPT, and Binoculars.
+  </div>
+
+  <div class="when">Hr 28–32</div>
+  <div class="what">
+    <strong>Inference.</strong> Run every sample through every detector. Store raw logits.
+  </div>
+
+  <div class="when">Hr 32–44</div>
+  <div class="what">
+    <strong>Analysis and write-up.</strong> 5×2 F1 heatmaps per detector. Mixed-effects regression. Calibration plots. UMAP embeddings. Threats to validity. Final report.
+  </div>
+</div>
+
+<p>The whole pipeline fits inside ~48 hours of wall-clock for an autonomous agent. The bottleneck is API rate limits on the LLM generation step, not compute or analysis. Fire and forget.</p>
+
+<h2 data-section="§8">Threats to Validity</h2>
+
+<ul>
+  <li><strong>Self-selection.</strong> Codeforces users are not a random sample of programmers. Replicate on a second source (LeetCode contests, AtCoder, or stratified GitHub by maintainer reputation) if time permits.</li>
+  <li><strong>Rating as a proxy for skill.</strong> Competitive-programming rating measures one specific skill (algorithmic problem solving under time pressure) that may not map cleanly to "writes idiomatic production code." This is a known limitation; document it rather than fight it.</li>
+  <li><strong>Filtering bias.</strong> Restricting to accepted solutions biases toward correct code on both sides. Plausibly this <em>understates</em> the confound, since incorrect human solutions would presumably be even less polished.</li>
+  <li><strong>Detector contamination.</strong> If DroidCollection's "Human" class contains Codeforces submissions, the detectors may have seen the test data during training. Check overlap by problem ID and timestamp.</li>
+  <li><strong>Model snapshot drift.</strong> Frontier-model behavior changes across versions. Lock model identifiers and dates in the released artifact.</li>
+</ul>
+
+<h2 data-section="§9">Fallbacks</h2>
+
+<p>Things that are likely to go wrong, and what to do about them. Claude Code should attempt the happy path first and degrade gracefully through these in order.</p>
+
+<h3>Codeforces data collection</h3>
+<ul>
+  <li>If the Codeforces API rate-limits aggressively (the documented limit is ~1 request per 2 seconds on some endpoints), use a pre-scraped Codeforces dataset from HuggingFace such as <code>open-r1/codeforces</code>, <code>MatrixStudio/Codeforces-Python-Submissions</code>, or similar. Pay the cost of working with a snapshot.</li>
+  <li>If submission source-code scraping is impractical (the source is on the website, not the API), AtCoder has a similar Elo system and exposes submission source directly via its public API. Acceptable substitute.</li>
+  <li>If both fail, fall back to the existing DroidCollection competitive-programming partition for the human side. Lose the rating-stratification metadata, but in that case pivot to using contributor reputation on OSS code (GitHub stars, contribution count) as a coarse skill proxy.</li>
+</ul>
+
+<h3>LLM generation</h3>
+<ul>
+  <li>If API rate limits or token credits get tight, drop sample count from n = 5 to n = 2 and restrict the model panel to the three frontier RLHF models plus DeepSeek-Coder. Five models is enough to characterize the LLM side.</li>
+  <li>If a model refuses some competitive problems (unlikely but possible for problems with sensitive flavor text), document the refusal rate and proceed with what remains.</li>
+  <li>If LLM-side acceptance filtering via the Codeforces submission interface is impractical, evaluate on the CodeContests test cases for problems that have them, or skip acceptance filtering entirely and note that LLM-side data includes failed solutions. The matched-problem property is what matters; acceptance is a nicety.</li>
+  <li>If everything fails, use a pre-existing LLM-on-Codeforces dataset such as LiveCodeBench or CodeElo generations. Lose the controlled prompt conditions, gain a working pipeline.</li>
+</ul>
+
+<h3>Detector training</h3>
+<ul>
+  <li>DroidCollection is ~847k training samples. If full training does not fit in the 48-hour budget on 2×RTX8000, reduce to 1 epoch (the paper trains 3) and batch size 32. The detection task is easy enough that 1 epoch usually gets within 1-2 F1 of full training.</li>
+  <li>If retraining from scratch is too slow, use the publicly-released DroidDetect checkpoint from HuggingFace (Orel et al. 2025b is on the hub) and any UniXcoder/CodeBERT detection checkpoints that exist. Note in the writeup that these are vendor checkpoints, not retrained.</li>
+  <li>If GPU memory is a constraint, LoRA-tune the backbones (r = 16) instead of full fine-tuning. Should preserve the decision boundary while reducing memory by ~5×.</li>
+  <li>If training fails entirely, drop to the four detectors that don't need it (Pangram, Fast-DetectGPT, Binoculars, plus DroidDetect checkpoint). Smaller panel, still tells the same story.</li>
+</ul>
+
+<h3>Detector contamination</h3>
+<ul>
+  <li>The DroidCollection training set includes competitive-programming code. Before any analysis, check problem-ID overlap between the test problems sampled here and DroidCollection's training partition. If overlap is large, restrict the test set to problems from contests held after DroidCollection's data cutoff (the paper documents the cutoff).</li>
+  <li>Report all results both with and without overlap removal. The contamination-free numbers are the load-bearing ones.</li>
+</ul>
+
+<h3>Statistical power</h3>
+<ul>
+  <li>If accepted-solution filtering leaves cells with fewer than 50 samples, relax the human filter to include solutions within one rating tier of the band's edge.</li>
+  <li>If Pangram API is over budget, run it on a stratified subsample (20% per cell). Statistical detectors are free, so they always run on the full set.</li>
+  <li>If any cell remains undersampled, report bootstrap CIs explicitly and flag the cell in the heatmap.</li>
+</ul>
+
+<h3>Minimum publishable result</h3>
+<p>If multiple failures cascade, the minimum result that still answers the central question is: at least two detectors (one trained, one statistical), at least two LLM conditions (natural, novice), at least two human rating bands (low and high), evaluated on at least 30 problems with matched coverage. This is sufficient to compute Δ<sub>confound</sub> for one trained and one statistical detector, which is enough to make the between-family claim. Everything above this floor is a nice-to-have.</p>
+
+<h2 data-section="§10">Deliverables</h2>
+
+<ul>
+  <li>A public dataset of (problem, rating, language, source, detector logits) tuples</li>
+  <li>A reproducibility script that goes from raw API pulls to the headline plot in under an hour on a single A100</li>
+  <li>A short paper or technical report with the regression table, the calibration plots, and the embedding visualizations</li>
+  <li>If results support H₁, a proposed evaluation protocol for future detector papers requiring skill-stratified reporting</li>
+</ul>
+
+<div class="ornament">⋄ ⋄ ⋄</div>
+
+<p style="font-style: italic; color: var(--ink-soft); font-size: 16px; max-width: 580px; margin: 0 auto; text-align: center;">The experiment runs on local compute plus existing token credits in roughly two days of wall-clock for an autonomous agent. The result is either a deployment-relevant correction to how the field reports detector accuracy, or a useful null that strengthens the case for current methods, or a quantified middle ground. All three outcomes are publishable. None is currently in the literature.</p>
+
+<footer>
+  <span>SKILL CONFOUND v0.1</span>
+  <span>FOR REVIEW &amp; ITERATION</span>
+</footer>
+
+</div>
+</body>
+</html>

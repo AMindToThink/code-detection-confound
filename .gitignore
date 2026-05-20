@@ -1,0 +1,8 @@
+# data artifacts (regenerable; can be large)
+data/*.parquet
+data/repos/
+# python
+__pycache__/
+*.pyc
+.venv/
+# keep results (figures/tables) tracked
