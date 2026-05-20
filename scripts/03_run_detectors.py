@@ -25,7 +25,13 @@ def assemble() -> pd.DataFrame:
     if not gen_files:
         raise RuntimeError("no LLM generations found in data/gen/ — run 02 first")
     llm = pd.concat([pd.read_parquet(f) for f in gen_files], ignore_index=True)
-    df = pd.concat([human, llm], ignore_index=True)
+    cf = pd.concat([human, llm], ignore_index=True)
+    cf["dataset"] = "cf"
+    parts = [cf]
+    leg_path = C.DATA / "legendary_code.parquet"
+    if leg_path.exists():
+        parts.append(pd.read_parquet(leg_path))   # already has dataset='legendary'
+    df = pd.concat(parts, ignore_index=True)
     df = df.drop_duplicates("sample_id").reset_index(drop=True)
     return df
 
@@ -61,11 +67,11 @@ def main() -> None:
 
     df.to_parquet(C.SCORED_PARQUET, index=False)
     print(f"wrote {C.SCORED_PARQUET}")
-    # quick global sanity: pooled AUROC should be > 0.5 for each detector (orientation)
+    # quick global sanity (cf only): pooled AUROC should be > 0.5 (orientation check)
     from sklearn.metrics import roc_auc_score
-    y = (df.species == "llm").astype(int)
+    cf = df[df.dataset == "cf"]
     for det in C.DETECTOR_FAMILY:
-        sub = df[df[det].notna()]
+        sub = cf[cf[det].notna()]
         auc = roc_auc_score((sub.species == "llm").astype(int), sub[det])
         print(f"  pooled AUROC {det:14s} = {auc:.3f}  (n={len(sub)})")
 
