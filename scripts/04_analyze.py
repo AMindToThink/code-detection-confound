@@ -104,31 +104,39 @@ def cell_aurocs(cf: pd.DataFrame) -> dict:
 
 
 def delta_confound_ci(cf: pd.DataFrame) -> dict:
-    """Cluster-bootstrap CI on Δ_confound per detector (resample problems once per draw,
-    recompute matched & mismatched pooled AUROC, take the difference)."""
+    """Cluster-bootstrap CI on Δ_confound per detector. Δ = mean(per-cell AUROC over
+    mismatched cells) − mean(per-cell AUROC over matched cells), consistent with the
+    point estimate in cell_aurocs(). Resample problems once per draw, recompute every
+    cell's AUROC, then average within kind and difference."""
     humans = cf[cf.species == "human"]
     llms = cf[cf.species == "llm"]
     probs = cf["problem_id"].unique()
+    # precompute per-problem score arrays per (group, det) to avoid pandas in the loop
     res = {}
     for det in DETECTORS:
-        def pooled(kind_set, samp_set):
-            negs, poss = [], []
-            for band in C.BANDS:
-                for cond in C.CONDITIONS:
-                    if (band, cond) not in kind_set:
-                        continue
-                    hn = humans[(humans.band == band) & (humans.problem_id.isin(samp_set))][det].dropna().values
-                    lp = llms[(llms.condition == cond) & (llms.problem_id.isin(samp_set))][det].dropna().values
-                    negs.append(hn); poss.append(lp)
-            return auroc(np.concatenate(negs), np.concatenate(poss))
+        hb = {(b): {p: g[det].dropna().values for p, g in humans[humans.band == b].groupby("problem_id")}
+              for b in C.BANDS}
+        lc = {(c): {p: g[det].dropna().values for p, g in llms[llms.condition == c].groupby("problem_id")}
+              for c in C.CONDITIONS}
+
+        def kind_mean(kind_set, samp):
+            cell_aucs = []
+            for (band, cond) in kind_set:
+                neg = np.concatenate([hb[band][p] for p in samp if p in hb[band]]) if hb[band] else np.array([])
+                pos = np.concatenate([lc[cond][p] for p in samp if p in lc[cond]]) if lc[cond] else np.array([])
+                a = auroc(neg, pos)
+                if not np.isnan(a):
+                    cell_aucs.append(a)
+            return np.mean(cell_aucs) if cell_aucs else np.nan
+
         boots = []
         for _ in range(500):
-            samp = set(RNG.choice(probs, size=len(probs), replace=True))
-            m = pooled(MATCHED, samp); mm = pooled(MISMATCHED, samp)
+            samp = RNG.choice(probs, size=len(probs), replace=True)
+            m = kind_mean(MATCHED, samp); mm = kind_mean(MISMATCHED, samp)
             if not (np.isnan(m) or np.isnan(mm)):
                 boots.append(mm - m)
-        res[det] = {"ci_lo": float(np.percentile(boots, 2.5)),
-                    "ci_hi": float(np.percentile(boots, 97.5))} if boots else {}
+        res[det] = ({"ci_lo": float(np.percentile(boots, 2.5)),
+                     "ci_hi": float(np.percentile(boots, 97.5))} if boots else {})
     return res
 
 

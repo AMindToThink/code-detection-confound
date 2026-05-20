@@ -51,8 +51,8 @@ def fig_delta_confound():
     ci = A["delta_confound_ci"]
     dets = DETECTORS
     deltas = [dc[d]["delta"] for d in dets]
-    los = [dc[d]["delta"] - ci[d]["ci_lo"] if ci.get(d) else 0 for d in dets]
-    his = [ci[d]["ci_hi"] - dc[d]["delta"] if ci.get(d) else 0 for d in dets]
+    los = [max(dc[d]["delta"] - ci[d]["ci_lo"], 0) if ci.get(d) else 0 for d in dets]
+    his = [max(ci[d]["ci_hi"] - dc[d]["delta"], 0) if ci.get(d) else 0 for d in dets]
     colors = [FAM_COLOR[C.DETECTOR_FAMILY[d]] for d in dets]
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.bar(range(len(dets)), deltas, yerr=[los, his], color=colors, capsize=4)
