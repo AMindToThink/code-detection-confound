@@ -236,24 +236,62 @@ def legendary_probe(df: pd.DataFrame) -> dict:
     leg = df[df.dataset == "legendary"]
     if leg.empty:
         return {}
+
+    def flag_rate_ci(scores, t, n_boot=2000):
+        """Flag rate (fraction > threshold t) + 95% bootstrap CI over samples."""
+        s = np.asarray(scores, dtype=float)
+        s = s[~np.isnan(s)]
+        if len(s) < 2:
+            return float("nan"), float("nan"), float("nan")
+        pt = float((s > t).mean())
+        boots = [float((s[RNG.integers(0, len(s), len(s))] > t).mean()) for _ in range(n_boot)]
+        return pt, float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5))
+
     out = {"thresholds": {}, "by_detector": {}, "by_author": {}, "cf_human_baseline": {}}
     thr = {}
     for det in DETECTORS:
         t = float(np.nanpercentile(cf_h[det].astype(float), 95))
         thr[det] = t
         out["thresholds"][det] = t
+        fr, lo, hi = flag_rate_ci(leg[det].values, t)
         out["by_detector"][det] = {
-            "flag_rate_5pctFPR": float((leg[det] > t).mean()),
-            "mean_score": float(leg[det].mean()),
-            "family": C.DETECTOR_FAMILY[det],
+            "flag_rate_5pctFPR": fr, "ci_lo": lo, "ci_hi": hi,
+            "mean_score": float(leg[det].mean()), "family": C.DETECTOR_FAMILY[det],
         }
-        out["cf_human_baseline"][det] = {"mean_score": float(cf_h[det].mean())}
+        # in-distribution sanity-check baseline (ordinary Codeforces humans at same threshold)
+        bfr, blo, bhi = flag_rate_ci(cf_h[det].values, t)
+        out["cf_human_baseline"][det] = {
+            "flag_rate_5pctFPR": bfr, "ci_lo": blo, "ci_hi": bhi,
+            "mean_score": float(cf_h[det].mean()),
+        }
     out["by_detector"]["DroidDetect"]["flag_rate_native_0.5"] = float((leg["DroidDetect"] > 0.5).mean())
     for author, g in leg.groupby("author"):
-        out["by_author"][author] = {
-            det: {"flag_rate_5pctFPR": float((g[det] > thr[det]).mean()),
-                  "mean_score": float(g[det].mean())} for det in DETECTORS}
-        out["by_author"][author]["n"] = int(len(g))
+        d = {}
+        for det in DETECTORS:
+            fr, lo, hi = flag_rate_ci(g[det].values, thr[det])
+            d[det] = {"flag_rate_5pctFPR": fr, "ci_lo": lo, "ci_hi": hi,
+                      "mean_score": float(g[det].mean())}
+        d["n"] = int(len(g))
+        out["by_author"][author] = d
+
+    # DroidDetect's NATIVE operating point. It is a 2-class softmax classifier whose
+    # actual prediction is argmax == (P(machine) > 0.5); there is no tunable threshold or
+    # fixed-FPR point in its design. We therefore report its real predictions at argmax,
+    # and the honest in-distribution baseline is its *actual* FPR on ordinary human code
+    # (NOT a forced 5%). (For the statistical detectors argmax is meaningless — their
+    # scores are not calibrated probabilities — so they keep the fixed-FPR operating point.)
+    cf_l = df[(df.dataset == "cf") & (df.species == "llm")]
+    na = {}
+    fr, lo, hi = flag_rate_ci(cf_h["DroidDetect"].values, 0.5)
+    na["cf_human"] = {"flag_rate": fr, "ci_lo": lo, "ci_hi": hi}          # true in-dist FPR
+    na["cf_llm"] = {"flag_rate": float((cf_l["DroidDetect"] > 0.5).mean())}  # what AI looks like
+    fr, lo, hi = flag_rate_ci(leg["DroidDetect"].values, 0.5)
+    na["legendary"] = {"flag_rate": fr, "ci_lo": lo, "ci_hi": hi}
+    na["by_author"] = {}
+    for author, g in leg.groupby("author"):
+        fr, lo, hi = flag_rate_ci(g["DroidDetect"].values, 0.5)
+        na["by_author"][author] = {"flag_rate": fr, "ci_lo": lo, "ci_hi": hi, "n": int(len(g))}
+    out["native_argmax_DroidDetect"] = na
     return out
 
 

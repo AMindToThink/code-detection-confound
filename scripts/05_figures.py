@@ -94,17 +94,54 @@ def fig_legendary():
     if not leg:
         return
     authors = list(leg["by_author"])
-    fig, ax = plt.subplots(figsize=(9, 4.5))
-    x = np.arange(len(authors)); w = 0.8 / len(DETECTORS)
-    for k, det in enumerate(DETECTORS):
-        vals = [leg["by_author"][au][det]["flag_rate_5pctFPR"] for au in authors]
-        ax.bar(x + k * w, vals, w, label=det, color=FAM_COLOR[C.DETECTOR_FAMILY[det]],
-               alpha=0.6 + 0.4 * (k % 2))
-    ax.axhline(0.05, color="k", ls="--", lw=1, label="5% FPR (ordinary humans)")
-    ax.set_xticks(x + w); ax.set_xticklabels([a.split()[-1] for a in authors], rotation=15)
-    ax.set_ylabel("fraction flagged AI")
-    ax.set_title("Pre-LLM elite human code flagged as AI\n(thresholds = 5% FPR on ordinary Codeforces humans)")
-    ax.legend(fontsize=8, ncol=2)
+    _generic = {"core", "team", "contributors", "devs"}
+    short = [a.split()[0] if a.split()[-1].lower() in _generic else a.split()[-1] for a in authors]
+    base = leg.get("cf_human_baseline", {})
+    fig, axes = plt.subplots(1, len(DETECTORS), figsize=(5.2 * len(DETECTORS), 4.2), sharey=True)
+    if len(DETECTORS) == 1:
+        axes = [axes]
+    na = leg.get("native_argmax_DroidDetect", {})
+    x = np.arange(len(authors)); w = 0.38
+    for ax, det in zip(axes, DETECTORS):
+        col = FAM_COLOR[C.DETECTOR_FAMILY[det]]
+        if det == "DroidDetect" and na:
+            # NATIVE argmax operating point (the model's actual predictions); baseline is
+            # DroidDetect's true FPR on ordinary human code, not a forced 5%.
+            src = na["by_author"]
+            leg_v = [src[au]["flag_rate"] for au in authors]
+            leg_err = [[max(src[au]["flag_rate"] - src[au]["ci_lo"], 0) for au in authors],
+                       [max(src[au]["ci_hi"] - src[au]["flag_rate"], 0) for au in authors]]
+            bv = na["cf_human"]["flag_rate"]
+            blo, bhi = na["cf_human"]["ci_lo"], na["cf_human"]["ci_hi"]
+            opname = "native argmax (P(machine)>0.5)"
+            llm_ref = na["cf_llm"]["flag_rate"]
+        else:
+            src = {au: leg["by_author"][au][det] for au in authors}
+            leg_v = [src[au]["flag_rate_5pctFPR"] for au in authors]
+            leg_err = [[max(src[au]["flag_rate_5pctFPR"] - src[au].get("ci_lo", src[au]["flag_rate_5pctFPR"]), 0) for au in authors],
+                       [max(src[au].get("ci_hi", src[au]["flag_rate_5pctFPR"]) - src[au]["flag_rate_5pctFPR"], 0) for au in authors]]
+            b = base.get(det, {})
+            bv = b.get("flag_rate_5pctFPR", float("nan"))
+            blo, bhi = b.get("ci_lo", bv), b.get("ci_hi", bv)
+            opname = "threshold @ 5% FPR on humans"
+            llm_ref = None
+        ax.bar(x - w / 2, leg_v, w, yerr=leg_err, capsize=3, color=col,
+               label="legendary pre-LLM (human)")
+        ax.bar(x + w / 2, [bv] * len(authors), w,
+               yerr=[[max(bv - blo, 0)] * len(authors), [max(bhi - bv, 0)] * len(authors)],
+               capsize=3, color=col, alpha=0.30, label="in-distribution Codeforces humans")
+        if llm_ref is not None:
+            ax.axhline(llm_ref, color="0.25", ls="--", lw=1, label="Codeforces LLM code")
+        ax.set_xticks(x); ax.set_xticklabels(short, rotation=20, ha="right", fontsize=9)
+        ax.set_title(f"{det} ({C.DETECTOR_FAMILY[det]})\n{opname}", fontsize=10)
+        ax.set_ylim(0, 1)
+    axes[0].set_ylabel("fraction flagged AI")
+    axes[0].legend(fontsize=7.5, loc="upper right")
+    for ax in axes[1:]:
+        ax.legend(fontsize=7.5, loc="upper right")
+    fig.suptitle("Provably-human pre-LLM elite code flagged as AI vs. in-distribution human "
+                 "baseline (bars = bootstrap 95% CI; each detector at its own operating point)",
+                 y=1.03, fontsize=11)
     fig.savefig(C.FIGURES / "fig4_legendary_flag_rates.png")
     plt.close(fig)
 

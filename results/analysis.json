@@ -13,49 +13,49 @@
     "cells": {
       "DroidDetect": {
         "easy|natural": {
-          "auroc": 0.8117766168050797,
-          "ci_lo": 0.7809006921444481,
-          "ci_hi": 0.8421070810243643,
+          "auroc": 0.8102384648874212,
+          "ci_lo": 0.7808738601088773,
+          "ci_hi": 0.840090779779892,
           "kind": "mismatched",
           "n_human": 357,
           "n_llm": 682
         },
         "easy|novice": {
-          "auroc": 0.657920855018435,
-          "ci_lo": 0.6218755080287239,
-          "ci_hi": 0.696624843199413,
+          "auroc": 0.658205888504743,
+          "ci_lo": 0.6225393584736775,
+          "ci_hi": 0.6962527239753469,
           "kind": "matched",
           "n_human": 357,
           "n_llm": 683
         },
         "easy|expert": {
-          "auroc": 0.688375350140056,
-          "ci_lo": 0.6553830471327882,
-          "ci_hi": 0.7207496178970493,
+          "auroc": 0.688677837999105,
+          "ci_lo": 0.6563139185875181,
+          "ci_hi": 0.7190533803792155,
           "kind": "expert",
           "n_human": 357,
           "n_llm": 676
         },
         "hard|natural": {
-          "auroc": 0.8238329700925409,
-          "ci_lo": 0.7909128006907075,
-          "ci_hi": 0.8556446757385484,
+          "auroc": 0.8334094047034927,
+          "ci_lo": 0.8024275560560074,
+          "ci_hi": 0.8633432600853437,
           "kind": "matched",
           "n_human": 257,
           "n_llm": 682
         },
         "hard|novice": {
-          "auroc": 0.6929060963590478,
-          "ci_lo": 0.6462757903209317,
-          "ci_hi": 0.735902276195653,
+          "auroc": 0.7032689382502235,
+          "ci_lo": 0.6586873093543831,
+          "ci_hi": 0.745096652827752,
           "kind": "mismatched",
           "n_human": 257,
           "n_llm": 683
         },
         "hard|expert": {
-          "auroc": 0.7215826675569268,
-          "ci_lo": 0.6841599930724701,
-          "ci_hi": 0.754315898923838,
+          "auroc": 0.7246160753344232,
+          "ci_lo": 0.688440066396132,
+          "ci_hi": 0.7565399494600312,
           "kind": "expert",
           "n_human": 257,
           "n_llm": 676
@@ -164,9 +164,9 @@
     },
     "delta_confound": {
       "DroidDetect": {
-        "auroc_matched": 0.7408769125554879,
-        "auroc_mismatched": 0.7523413565820638,
-        "delta": 0.01146444402657587,
+        "auroc_matched": 0.7458076466041179,
+        "auroc_mismatched": 0.7567537015688224,
+        "delta": 0.010946054964704466,
         "family": "trained"
       },
       "FastDetectGPT": {
@@ -185,8 +185,8 @@
   },
   "delta_confound_ci": {
     "DroidDetect": {
-      "ci_lo": 0.0018096058957560392,
-      "ci_hi": 0.021277455225704726
+      "ci_lo": 0.0011647850567998996,
+      "ci_hi": 0.020798329736901502
     },
     "FastDetectGPT": {
       "ci_lo": -0.00898104191637101,
@@ -199,15 +199,15 @@
   },
   "within_species_slopes": {
     "DroidDetect": {
-      "human_slope": -0.29159694172397926,
+      "human_slope": -0.30189800438736564,
       "human_ci": [
-        -0.5192392547905568,
-        -0.05855583918085559
+        -0.5283971549892194,
+        -0.07106258326808687
       ],
-      "llm_slope": -0.09142997977903443,
+      "llm_slope": -0.14145333370672486,
       "llm_ci": [
-        -0.13828122064525453,
-        -0.045482661464573575
+        -0.18611574218700222,
+        -0.09620483766867013
       ],
       "family": "trained"
     },
@@ -286,7 +286,7 @@
   },
   "style_mediation": {
     "DroidDetect": {
-      "r2_style": 0.12799949132313582
+      "r2_style": 0.10814487466607192
     },
     "FastDetectGPT": {
       "r2_style": 0.27649326510070993
@@ -297,24 +297,30 @@
   },
   "legendary": {
     "thresholds": {
-      "DroidDetect": 0.9978895217180253,
+      "DroidDetect": 0.9984392464160919,
       "FastDetectGPT": 0.9898170441389089,
       "Binoculars": -0.6220895260572433
     },
     "by_detector": {
       "DroidDetect": {
-        "flag_rate_5pctFPR": 0.4888888888888889,
-        "mean_score": 0.784345216954265,
+        "flag_rate_5pctFPR": 0.5185185185185185,
+        "ci_lo": 0.43703703703703706,
+        "ci_hi": 0.6,
+        "mean_score": 0.8255776224037011,
         "family": "trained",
-        "flag_rate_native_0.5": 0.7851851851851852
+        "flag_rate_native_0.5": 0.8296296296296296
       },
       "FastDetectGPT": {
         "flag_rate_5pctFPR": 0.1259259259259259,
+        "ci_lo": 0.07407407407407407,
+        "ci_hi": 0.18518518518518517,
         "mean_score": -0.29784405705070605,
         "family": "statistical"
       },
       "Binoculars": {
         "flag_rate_5pctFPR": 0.2,
+        "ci_lo": 0.13333333333333333,
+        "ci_hi": 0.26666666666666666,
         "mean_score": -0.6802739061691143,
         "family": "statistical"
       }
@@ -323,59 +329,83 @@
       "CPython core": {
         "DroidDetect": {
           "flag_rate_5pctFPR": 0.875,
-          "mean_score": 0.974673318117857
+          "ci_lo": 0.775,
+          "ci_hi": 0.975,
+          "mean_score": 0.9749985902104527
         },
         "FastDetectGPT": {
           "flag_rate_5pctFPR": 0.15,
+          "ci_lo": 0.05,
+          "ci_hi": 0.275,
           "mean_score": -0.0020019419491291044
         },
         "Binoculars": {
           "flag_rate_5pctFPR": 0.275,
+          "ci_lo": 0.15,
+          "ci_hi": 0.425,
           "mean_score": -0.661064313352108
         },
         "n": 40
       },
       "D. Richard Hipp": {
         "DroidDetect": {
-          "flag_rate_5pctFPR": 0.275,
-          "mean_score": 0.7338360229332466
+          "flag_rate_5pctFPR": 0.375,
+          "ci_lo": 0.225,
+          "ci_hi": 0.525,
+          "mean_score": 0.8003630916238762
         },
         "FastDetectGPT": {
           "flag_rate_5pctFPR": 0.175,
+          "ci_lo": 0.075,
+          "ci_hi": 0.3,
           "mean_score": 0.06132103300187737
         },
         "Binoculars": {
           "flag_rate_5pctFPR": 0.1,
+          "ci_lo": 0.025,
+          "ci_hi": 0.2,
           "mean_score": -0.6783791348338127
         },
         "n": 40
       },
       "Linus Torvalds": {
         "DroidDetect": {
-          "flag_rate_5pctFPR": 0.4,
-          "mean_score": 0.6061202398501336
+          "flag_rate_5pctFPR": 0.3333333333333333,
+          "ci_lo": 0.13333333333333333,
+          "ci_hi": 0.6,
+          "mean_score": 0.6091258343930046
         },
         "FastDetectGPT": {
           "flag_rate_5pctFPR": 0.06666666666666667,
+          "ci_lo": 0.0,
+          "ci_hi": 0.2,
           "mean_score": -0.6450252056121826
         },
         "Binoculars": {
           "flag_rate_5pctFPR": 0.13333333333333333,
+          "ci_lo": 0.0,
+          "ci_hi": 0.3333333333333333,
           "mean_score": -0.7234841585159302
         },
         "n": 15
       },
       "Salvatore Sanfilippo": {
         "DroidDetect": {
-          "flag_rate_5pctFPR": 0.35,
-          "mean_score": 0.7113606762257405
+          "flag_rate_5pctFPR": 0.375,
+          "ci_lo": 0.225,
+          "ci_hi": 0.525,
+          "mean_score": 0.7825406058807858
         },
         "FastDetectGPT": {
           "flag_rate_5pctFPR": 0.075,
+          "ci_lo": 0.0,
+          "ci_hi": 0.175,
           "mean_score": -0.8226583314943128
         },
         "Binoculars": {
           "flag_rate_5pctFPR": 0.25,
+          "ci_lo": 0.125,
+          "ci_hi": 0.4,
           "mean_score": -0.6851744256913662
         },
         "n": 40
@@ -383,13 +413,63 @@
     },
     "cf_human_baseline": {
       "DroidDetect": {
-        "mean_score": 0.6193252590284698
+        "flag_rate_5pctFPR": 0.050488599348534204,
+        "ci_lo": 0.03420195439739414,
+        "ci_hi": 0.06840390879478828,
+        "mean_score": 0.6693450921940911
       },
       "FastDetectGPT": {
+        "flag_rate_5pctFPR": 0.050488599348534204,
+        "ci_lo": 0.03420195439739414,
+        "ci_hi": 0.06840390879478828,
         "mean_score": -0.9256428525406194
       },
       "Binoculars": {
+        "flag_rate_5pctFPR": 0.050488599348534204,
+        "ci_lo": 0.03420195439739414,
+        "ci_hi": 0.06840390879478828,
         "mean_score": -0.8636211624265882
+      }
+    },
+    "native_argmax_DroidDetect": {
+      "cf_human": {
+        "flag_rate": 0.6726384364820847,
+        "ci_lo": 0.6351791530944625,
+        "ci_hi": 0.7084690553745928
+      },
+      "cf_llm": {
+        "flag_rate": 0.8432141107300343
+      },
+      "legendary": {
+        "flag_rate": 0.8296296296296296,
+        "ci_lo": 0.762962962962963,
+        "ci_hi": 0.8888888888888888
+      },
+      "by_author": {
+        "CPython core": {
+          "flag_rate": 0.975,
+          "ci_lo": 0.925,
+          "ci_hi": 1.0,
+          "n": 40
+        },
+        "D. Richard Hipp": {
+          "flag_rate": 0.825,
+          "ci_lo": 0.7,
+          "ci_hi": 0.925,
+          "n": 40
+        },
+        "Linus Torvalds": {
+          "flag_rate": 0.6,
+          "ci_lo": 0.3333333333333333,
+          "ci_hi": 0.8666666666666667,
+          "n": 15
+        },
+        "Salvatore Sanfilippo": {
+          "flag_rate": 0.775,
+          "ci_lo": 0.65,
+          "ci_hi": 0.9,
+          "n": 40
+        }
       }
     }
   },
@@ -405,13 +485,13 @@
     },
     "by_detector": {
       "DroidDetect": {
-        "mean_z_high": -0.30887257371865595,
-        "mean_z_low": 0.06177451474373125,
-        "high_minus_low": -0.3706470884623872,
-        "slope_per_400elo": -0.1002663790835383,
+        "mean_z_high": -0.3472832670685708,
+        "mean_z_low": 0.06945665341371403,
+        "high_minus_low": -0.41673992048228486,
+        "slope_per_400elo": -0.12059644171005053,
         "slope_ci": [
-          -0.2406302266750558,
-          0.13850628341304416
+          -0.2710975249637615,
+          0.10742092868682923
         ],
         "family": "trained"
       },
@@ -421,8 +501,8 @@
         "high_minus_low": -0.9972492245876241,
         "slope_per_400elo": -0.16747733907730433,
         "slope_ci": [
-          -0.30328482015961344,
-          0.08245588519314052
+          -0.30134772026575113,
+          0.09155060970537417
         ],
         "family": "statistical"
       },
@@ -432,8 +512,8 @@
         "high_minus_low": -0.3940109646365583,
         "slope_per_400elo": -0.04286228186793144,
         "slope_ci": [
-          -0.3025941672192669,
-          0.18150429032821608
+          -0.28394438104999803,
+          0.15930439652359576
         ],
         "family": "statistical"
       }
