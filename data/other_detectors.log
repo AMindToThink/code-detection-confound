@@ -1,1 +1,29 @@
 You are using a model of type `custom_model` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.
+You are using a model of type `custom_model` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.
+You are using a model of type `custom_model` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.
+
+=== project-droid/DroidDetect-Base-Binary (2-class) ===
+  DC-human  original=0.013 -> black=0.831   (flip = formatting confound)
+  DC-machine=0.987  MatrixStudio-human=0.713  legendary-all=0.830
+    legendary CPython core             0.975 (n=40)
+    legendary D. Richard Hipp          0.825 (n=40)
+    legendary Linus Torvalds           0.600 (n=15)
+    legendary Salvatore Sanfilippo     0.775 (n=40)
+
+=== project-droid/DroidDetect-Base (4-class) ===
+  DC-human  original=0.027 -> black=0.764   (flip = formatting confound)
+  DC-machine=1.000  MatrixStudio-human=0.780  legendary-all=0.911
+    legendary CPython core             1.000 (n=40)
+    legendary D. Richard Hipp          0.875 (n=40)
+    legendary Linus Torvalds           0.733 (n=15)
+    legendary Salvatore Sanfilippo     0.925 (n=40)
+
+=== project-droid/DroidDetect-Large-Binary (2-class) ===
+  DC-human  original=0.007 -> black=0.811   (flip = formatting confound)
+  DC-machine=0.980  MatrixStudio-human=0.700  legendary-all=0.763
+    legendary CPython core             0.975 (n=40)
+    legendary D. Richard Hipp          0.700 (n=40)
+    legendary Linus Torvalds           0.467 (n=15)
+    legendary Salvatore Sanfilippo     0.725 (n=40)
+
+wrote results/other_detectors.json

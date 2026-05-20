@@ -114,11 +114,36 @@ Paper: Orel, Paul, Gurevych, Nakov, DroidCollection/DroidDetect, arXiv:2507.1058
 - `black` run via `uvx` (ephemeral) to avoid touching the shared env.
 - Reproducible end-to-end: `./run_pipeline.sh` (GPU1 only).
 
+## Finding 7 — The confound is FAMILY-WIDE, not a single checkpoint (scripts/10)
+A web audit found NO clean out-of-the-box, standard-architecture AI-*code* detector on HF besides
+the DroidDetect family (others are LoRA adapters / raw .pth / sklearn-joblib with undocumented
+feature pipelines — running them would require the reimplementation we forbid). So we ran the
+black-flip + legendary probe on all three published DroidDetect siblings (`results/other_detectors.json`):
+
+| detector | DC-human orig → black | DC-machine | MS-human | legendary-all | CPython | Torvalds |
+|---|---|---|---|---|---|---|
+| Base-Binary (2-class, ModernBERT-base) | 0.013 → **0.831** | 0.987 | 0.713 | 0.830 | 0.975 | 0.600 |
+| Base (4-class, ModernBERT-base) | 0.027 → **0.764** | 1.000 | 0.780 | 0.911 | 1.000 | 0.733 |
+| Large-Binary (2-class, ModernBERT-large) | 0.007 → **0.811** | 0.980 | 0.700 | 0.763 | 0.975 | 0.467 |
+
+- All three flip in-distribution human code from ~1% to ~80% "machine" under `black`. The confound
+  is **architecture/size/granularity-invariant within the family** — consistent with a DATA cause
+  (Finding 3), not a quirk of one checkpoint. **Scaling to Large does not fix it.**
+- Legendary-flag and cross-source-FPR effects reproduce on every sibling (CPython ≥97.5% on all).
+- CAVEAT on generality: same authors, same DroidCollection training data. To prove the confound
+  lives in the DATA rather than the family's shared recipe, the decisive test is to fine-tune an
+  INDEPENDENT architecture (RoBERTa/CodeBERT-ForSequenceClassification) on DroidCollection and run
+  the same ablation. That is "train our own," a deviation from "use OOTB / never reimplement," so
+  it needs explicit sign-off (proposed to Matthew).
+
 ## Open / next
 - Statistical-detector robustness numbers for the ablation finishing in background (json append;
   doesn't change fig7 or headline).
 - Strongest follow-ups: fixed-FPR + calibration sweep across detectors; idiomatic-style axis via
   an author-reputation cohort on production code (GitHub by maintainer reputation); larger
   high-skill AtCoder sample.
-- **In progress (Matthew's request):** replicate the formatting-confound + legendary probe on
-  OTHER independent trained code AI-detectors (not the DroidDetect family) to test generality.
+- DONE (Finding 7): replicated on all DroidDetect family siblings — confound is family-wide.
+- **Proposed, awaiting sign-off:** fine-tune an INDEPENDENT detector (RoBERTa/CodeBERT
+  -ForSequenceClassification) on DroidCollection to prove the confound is in the DATA, not the
+  DroidDetect recipe. Only out-of-the-box detectors that exist on HF are the DroidDetect family;
+  any further generality test requires training one ourselves.

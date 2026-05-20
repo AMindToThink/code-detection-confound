@@ -1,0 +1,80 @@
+{
+  "project-droid/DroidDetect-Base-Binary": {
+    "n_classes": 2,
+    "dc_human_original": 0.013333333333333334,
+    "dc_human_black": 0.831081081081081,
+    "dc_machine": 0.9866666666666667,
+    "matrixstudio_human": 0.7133333333333334,
+    "legendary_by_author": {
+      "CPython core": {
+        "flag_rate": 0.975,
+        "n": 40
+      },
+      "D. Richard Hipp": {
+        "flag_rate": 0.825,
+        "n": 40
+      },
+      "Linus Torvalds": {
+        "flag_rate": 0.6,
+        "n": 15
+      },
+      "Salvatore Sanfilippo": {
+        "flag_rate": 0.775,
+        "n": 40
+      }
+    },
+    "legendary_all": 0.8296296296296296
+  },
+  "project-droid/DroidDetect-Base": {
+    "n_classes": 4,
+    "dc_human_original": 0.02666666666666667,
+    "dc_human_black": 0.7635135135135135,
+    "dc_machine": 1.0,
+    "matrixstudio_human": 0.78,
+    "legendary_by_author": {
+      "CPython core": {
+        "flag_rate": 1.0,
+        "n": 40
+      },
+      "D. Richard Hipp": {
+        "flag_rate": 0.875,
+        "n": 40
+      },
+      "Linus Torvalds": {
+        "flag_rate": 0.7333333333333333,
+        "n": 15
+      },
+      "Salvatore Sanfilippo": {
+        "flag_rate": 0.925,
+        "n": 40
+      }
+    },
+    "legendary_all": 0.9111111111111111
+  },
+  "project-droid/DroidDetect-Large-Binary": {
+    "n_classes": 2,
+    "dc_human_original": 0.006666666666666667,
+    "dc_human_black": 0.8108108108108109,
+    "dc_machine": 0.98,
+    "matrixstudio_human": 0.7,
+    "legendary_by_author": {
+      "CPython core": {
+        "flag_rate": 0.975,
+        "n": 40
+      },
+      "D. Richard Hipp": {
+        "flag_rate": 0.7,
+        "n": 40
+      },
+      "Linus Torvalds": {
+        "flag_rate": 0.4666666666666667,
+        "n": 15
+      },
+      "Salvatore Sanfilippo": {
+        "flag_rate": 0.725,
+        "n": 40
+      }
+    },
+    "legendary_all": 0.762962962962963
+  }
+}
