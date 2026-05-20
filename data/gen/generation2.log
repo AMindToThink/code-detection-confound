@@ -1,1 +1,72 @@
 ===== 06:06:58 generating Qwen/Qwen2.5-3B-Instruct =====
+  16/360 prompts done
+  32/360 prompts done
+  48/360 prompts done
+  64/360 prompts done
+  80/360 prompts done
+  96/360 prompts done
+  112/360 prompts done
+  128/360 prompts done
+  144/360 prompts done
+  160/360 prompts done
+  176/360 prompts done
+  192/360 prompts done
+  208/360 prompts done
+  224/360 prompts done
+  240/360 prompts done
+  256/360 prompts done
+  272/360 prompts done
+  288/360 prompts done
+  304/360 prompts done
+  320/360 prompts done
+  336/360 prompts done
+  352/360 prompts done
+  360/360 prompts done
+Qwen/Qwen2.5-3B-Instruct: 719 generations -> /home/cs29824/matthew/code-detection-confound/data/gen/Qwen__Qwen2.5-3B-Instruct.parquet
+band  condition
+easy  expert       120
+      natural      120
+      novice       120
+hard  expert       120
+      natural      120
+      novice       119
+dtype: int64
+===== 06:21:35 generating microsoft/Phi-3.5-mini-instruct =====
+This model config has set a `rope_parameters['original_max_position_embeddings']` field, to be used together with `max_position_embeddings` to determine a scaling factor. Please set the `factor` field of `rope_parameters`with this ratio instead -- we recommend the use of this field over `original_max_position_embeddings`, as it is compatible with most model architectures.
+A new version of the following files was downloaded from https://huggingface.co/microsoft/Phi-3.5-mini-instruct:
+- configuration_phi3.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+A new version of the following files was downloaded from https://huggingface.co/microsoft/Phi-3.5-mini-instruct:
+- modeling_phi3.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+`flash-attention` package not found, consider installing for better performance: No module named 'flash_attn'.
+Current `flash-attention` does not support `window_size`. Either upgrade or use `attn_implementation='eager'`.
+Traceback (most recent call last):
+  File "/home/cs29824/matthew/code-detection-confound/scripts/02_generate_llm.py", line 113, in <module>
+    main()
+  File "/home/cs29824/matthew/code-detection-confound/scripts/02_generate_llm.py", line 90, in main
+    decoded = gen_batch(chunk)                               # len = BATCH * n
+              ^^^^^^^^^^^^^^^^
+  File "/home/cs29824/miniconda3/envs/dfc/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cs29824/matthew/code-detection-confound/scripts/02_generate_llm.py", line 81, in gen_batch
+    out = lm.generate(**enc, do_sample=True, temperature=0.8, top_p=0.95,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cs29824/miniconda3/envs/dfc/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cs29824/miniconda3/envs/dfc/lib/python3.11/site-packages/transformers/generation/utils.py", line 2668, in generate
+    result = decoding_method(
+             ^^^^^^^^^^^^^^^^
+  File "/home/cs29824/miniconda3/envs/dfc/lib/python3.11/site-packages/transformers/generation/utils.py", line 2863, in _sample
+    outputs = self._prefill(input_ids, generation_config, model_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cs29824/miniconda3/envs/dfc/lib/python3.11/site-packages/transformers/generation/utils.py", line 3856, in _prefill
+    model_inputs = self.prepare_inputs_for_generation(input_ids, is_first_iteration=True, **model_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cs29824/.cache/huggingface/modules/transformers_modules/microsoft/Phi_hyphen_3_dot_5_hyphen_mini_hyphen_instruct/2fe192450127e6a83f7441aef6e3ca586c338b77/modeling_phi3.py", line 1298, in prepare_inputs_for_generation
+    past_length = past_key_values.seen_tokens
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicCache' object has no attribute 'seen_tokens'
+===== ALL GEN DONE 06:21:54 =====

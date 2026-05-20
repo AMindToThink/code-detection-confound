@@ -1,6 +1,9 @@
 # data artifacts (regenerable; can be large)
 data/*.parquet
 data/repos/
+# secrets (never commit API keys)
+.env
+.env.*
 # python
 __pycache__/
 *.pyc

@@ -1,0 +1,16 @@
+  100/720 calls done
+  200/720 calls done
+  300/720 calls done
+  400/720 calls done
+  500/720 calls done
+  600/720 calls done
+  700/720 calls done
+gpt-5.4-nano: 604 generations (0 errors) -> /home/cs29824/matthew/code-detection-confound/data/gen/openai__gpt-5_4-nano.parquet
+band  condition
+easy  expert       118
+      natural      119
+      novice       118
+hard  expert        78
+      natural       83
+      novice        88
+dtype: int64

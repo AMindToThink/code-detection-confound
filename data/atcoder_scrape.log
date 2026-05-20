@@ -1,3 +1,11 @@
 window 2019-09-01: 206 AC python subs, 80 unique users so far
 window 2020-06-01: 116 AC python subs, 158 unique users so far
 window 2021-03-01: 168 AC python subs, 241 unique users so far
+users: low=117 high=7
+band low_skill: 45 source files scraped
+band high_skill: 9 source files scraped
+wrote data/atcoder_human.parquet: 54 samples (14 fetch fails)
+             n  mean_rating
+band                       
+high_skill   9  2224.666667
+low_skill   45   322.733333
