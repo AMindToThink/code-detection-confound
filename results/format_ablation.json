@@ -116,5 +116,49 @@
         "mean_p_machine": 0.9783487884262249
       }
     }
+  },
+  "statistical_mean_score": {
+    "original": {
+      "MatrixStudio-human": {
+        "FastDetectGPT": -0.4836512397771003,
+        "Binoculars": -0.8327801015228034
+      },
+      "DroidCollection-human": {
+        "FastDetectGPT": -1.1088625690434128,
+        "Binoculars": -0.8120774880051613
+      },
+      "DroidCollection-machine": {
+        "FastDetectGPT": -0.3311521995114163,
+        "Binoculars": -0.7650006551295518
+      }
+    },
+    "black": {
+      "MatrixStudio-human": {
+        "FastDetectGPT": -0.48293276780477756,
+        "Binoculars": -0.8271766915917397
+      },
+      "DroidCollection-human": {
+        "FastDetectGPT": -0.8699754741624929,
+        "Binoculars": -0.7993733406066894
+      },
+      "DroidCollection-machine": {
+        "FastDetectGPT": -0.2861359281501791,
+        "Binoculars": -0.7411340110003948
+      }
+    },
+    "ast_canon": {
+      "MatrixStudio-human": {
+        "FastDetectGPT": 0.03226436297991313,
+        "Binoculars": -0.7782984152436256
+      },
+      "DroidCollection-human": {
+        "FastDetectGPT": -0.6409320734033827,
+        "Binoculars": -0.7796213243156671
+      },
+      "DroidCollection-machine": {
+        "FastDetectGPT": -0.31308169988915324,
+        "Binoculars": -0.7535723272711039
+      }
+    }
   }
 }
