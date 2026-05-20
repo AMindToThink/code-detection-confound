@@ -257,6 +257,51 @@ def legendary_probe(df: pd.DataFrame) -> dict:
     return out
 
 
+def atcoder_author_skill(df: pd.DataFrame) -> dict:
+    """CONFIRMATORY: real per-author skill axis. Among AtCoder HUMANS, does detector score
+    rise with the AUTHOR's Elo rating? Reports (a) mean z-score by skill band, (b) the
+    Spearman/linear slope of z on author_rating, with author-clustered bootstrap CIs.
+    Positive => detectors score higher-skill humans as more 'AI' on a genuine skill axis."""
+    at = df[df.dataset == "atcoder"].copy()
+    if at.empty or "author_rating" not in at.columns:
+        return {}
+    # z-score detectors within the atcoder set
+    for det in DETECTORS:
+        v = at[det].astype(float)
+        at[det + "_z"] = (v - v.mean()) / (v.std(ddof=0) or 1.0)
+    out = {"n": int(len(at)),
+           "band_n": {b: int((at.band == b).sum()) for b in at.band.unique()},
+           "mean_rating": {b: float(at[at.band == b].author_rating.mean()) for b in at.band.unique()},
+           "by_detector": {}}
+    # author-clustered bootstrap
+    at = at.dropna(subset=["author_rating"])
+    at["author"] = at["sample_id"].str.split("::").str[1]
+    authors = at["author"].unique()
+    agroups = {a: g for a, g in at.groupby("author")}
+    for det in DETECTORS:
+        z = det + "_z"
+        hi = at[at.band == "high_skill"][z].mean()
+        lo = at[at.band == "low_skill"][z].mean()
+        # linear slope of z on rating (per 400 Elo)
+        def slope(d):
+            x = d["author_rating"].values.astype(float); y = d[z].values
+            return float(np.polyfit(x, y, 1)[0]) * 400 if np.std(x) > 0 else np.nan
+        pt = slope(at)
+        boots = []
+        for _ in range(N_BOOT):
+            samp = RNG.choice(authors, len(authors), replace=True)
+            d = pd.concat([agroups[a] for a in samp])
+            boots.append(slope(d))
+        out["by_detector"][det] = {
+            "mean_z_high": float(hi), "mean_z_low": float(lo),
+            "high_minus_low": float(hi - lo),
+            "slope_per_400elo": pt,
+            "slope_ci": [float(np.nanpercentile(boots, 2.5)), float(np.nanpercentile(boots, 97.5))],
+            "family": C.DETECTOR_FAMILY[det],
+        }
+    return out
+
+
 def main() -> None:
     df = pd.read_parquet(C.SCORED_PARQUET)
     cf = df[df.dataset == "cf"].copy()
@@ -270,6 +315,7 @@ def main() -> None:
         "difficulty_to_style": difficulty_to_style(cf),
         "style_mediation": style_mediation(cf),
         "legendary": legendary_probe(df),
+        "atcoder_author_skill": atcoder_author_skill(df),
         "detector_family": C.DETECTOR_FAMILY,
         "skill_source": C.SKILL_SOURCE,
     }
@@ -298,6 +344,13 @@ def emit_macros(a: dict) -> None:
             m[f"legFlag_{det}"] = round(a["legendary"]["by_detector"][det]["flag_rate_5pctFPR"], 3)
     if a["legendary"]:
         m["legFlag_DroidDetect_native"] = round(a["legendary"]["by_detector"]["DroidDetect"]["flag_rate_native_0.5"], 3)
+    at = a.get("atcoder_author_skill", {})
+    if at:
+        for det in DETECTORS:
+            d = at["by_detector"][det]
+            m[f"atSlope_{det}"] = round(d["slope_per_400elo"], 3)
+            m[f"atHiLo_{det}"] = round(d["high_minus_low"], 3)
+        m["atcoder_n"] = at["n"]
     (C.TABLES / "paper_macros.json").write_text(json.dumps(m, indent=2))
     print(f"wrote results/tables/paper_macros.json ({len(m)} macros)")
 

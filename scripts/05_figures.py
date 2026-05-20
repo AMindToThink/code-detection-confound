@@ -130,12 +130,35 @@ def fig_difficulty_style():
     plt.close(fig)
 
 
+def fig_atcoder():
+    at = A.get("atcoder_author_skill")
+    if not at:
+        return
+    dets = DETECTORS
+    fig, ax = plt.subplots(figsize=(7, 4))
+    x = np.arange(len(dets))
+    hi = [at["by_detector"][d]["mean_z_high"] for d in dets]
+    lo = [at["by_detector"][d]["mean_z_low"] for d in dets]
+    w = 0.38
+    ax.bar(x - w/2, lo, w, label="low-skill authors (rating ≤ 800)", color="#7fb069")
+    ax.bar(x + w/2, hi, w, label="high-skill authors (rating ≥ 2000)", color="#a23a1f")
+    ax.axhline(0, color="k", lw=0.8)
+    ax.set_xticks(x); ax.set_xticklabels(dets, rotation=15)
+    ax.set_ylabel("mean detector score (z, within AtCoder)")
+    ax.set_title("CONFIRMATORY: real author Elo — do detectors score\n"
+                 "higher-skill HUMANS as more 'AI'? (n=%d)" % at["n"])
+    ax.legend()
+    fig.savefig(C.FIGURES / "fig6_atcoder_author_skill.png")
+    plt.close(fig)
+
+
 def main():
     fig_auroc_heatmaps()
     fig_delta_confound()
     fig_within_species_slopes()
     fig_legendary()
     fig_difficulty_style()
+    fig_atcoder()
     print("wrote figures to", C.FIGURES)
 
 

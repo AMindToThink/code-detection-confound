@@ -31,6 +31,9 @@ def assemble() -> pd.DataFrame:
     leg_path = C.DATA / "legendary_code.parquet"
     if leg_path.exists():
         parts.append(pd.read_parquet(leg_path))   # already has dataset='legendary'
+    at_path = C.DATA / "atcoder_human.parquet"
+    if at_path.exists():
+        parts.append(pd.read_parquet(at_path))    # already has dataset='atcoder'
     df = pd.concat(parts, ignore_index=True)
     df = df.drop_duplicates("sample_id").reset_index(drop=True)
     return df

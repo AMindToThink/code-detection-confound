@@ -169,6 +169,24 @@ def main() -> None:
     for dt in DET:
         w(f"| {dt} | {f(med[dt]['r2_style'])} |")
 
+    # ---- 4.5 atcoder confirmatory
+    at = A.get("atcoder_author_skill")
+    if at:
+        w("### 4.5 Confirmatory: a real author-Elo skill axis (AtCoder)\n")
+        w(f"To address the problem-difficulty proxy, we scraped {at['n']} AtCoder human "
+          f"solutions with the **author's own Elo rating**: low-skill (≤800) vs high-skill "
+          f"(≥2000) authors. Within humans, does detector score rise with author rating?\n")
+        w("| Detector | Family | mean z (low) | mean z (high) | high−low | slope /400 Elo (95% CI) |")
+        w("|---|---|---|---|---|---|")
+        for dt in DET:
+            d = at["by_detector"][dt]
+            w(f"| {dt} | {FAM[dt]} | {f(d['mean_z_low'])} | {f(d['mean_z_high'])} | "
+              f"{f(d['high_minus_low'])} | {f(d['slope_per_400elo'])} "
+              f"[{f(d['slope_ci'][0])}, {f(d['slope_ci'][1])}] |")
+        w("\n![atcoder author skill](figures/fig6_atcoder_author_skill.png)\n")
+        w("*This is the cleanest test of the human side: the skill axis is the author's "
+          "actual competitive rating, not a problem-difficulty proxy.*\n")
+
     # ---- limitations
     w("## 5. Limitations\n")
     w("- **Problem difficulty ≠ author skill.** The headline human-side axis is a noisy "
