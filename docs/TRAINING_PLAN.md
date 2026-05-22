@@ -18,7 +18,22 @@ is the same family (same authors, same DroidCollection data, same ModernBERT bac
    artifact of *how DroidDetect specifically processes code* — most plausibly its tokenizer (more on
    this below) — rather than the human/machine split in the data.
 
+2. **Recipe / architecture explanation:** the confound is specific to *how DroidDetect is trained*
+   (the ModernBERT recipe), not to the data, so a different architecture/training-loop on the same
+   data would not inherit it.
+
 Training our own models is the only way to separate these. Two experiments do it.
+
+> **Retracted framing (kept for the record).** An earlier draft of this plan motivated Experiment B
+> as ruling out a "tokenizer artifact" — the idea that `black`'s output produces token sequences
+> that *ModernBERT's specific BPE vocabulary* accidentally maps to "machine." A fresh-context review
+> (and Matthew) showed this framing is **confused**: the formatting signal lives in the *text*, and
+> byte-level BPE tokenizers (RoBERTa/CodeBERT) preserve whitespace/newlines, so a different-tokenizer
+> model trained on the same non-normalized data flips under `black` *identically* — both the data
+> hypothesis and the "tokenizer" hypothesis predict the same result, so the experiment cannot
+> separate them and there is no coherent tokenizer-only artifact to isolate. Experiment B is retained
+> below purely as a **recipe/architecture generality** check, not a tokenizer test. The clean test of
+> formatting-as-input is direct input-level normalization (which the `black`/`ast` ablation already is).
 
 ---
 
@@ -52,45 +67,55 @@ This experiment is the most *direct* test of our headline mechanism, and it's th
 
 ---
 
-## Experiment B — independent architecture / **different tokenizer** (the control I was urging)
+## Experiment B — independent architecture (recipe-generality check)
 
-**What "tokenizer artifact" means, concretely.** A transformer never sees characters; it sees
-*tokens*. ModernBERT splits text into subword tokens using one specific learned BPE vocabulary.
-When `black` reformats code, it changes whitespace, indentation, quote characters, and line breaks —
-and **that changes how the text gets chopped into tokens.** It is *possible* (this is the alternative
-we can't currently exclude) that `black`'s output happens to produce token patterns that
-*ModernBERT's particular vocabulary* maps toward "machine," for reasons that are an accident of that
-tokenizer rather than a fact about the human/machine data. All three siblings in Finding 7 share the
-**exact same ModernBERT tokenizer**, so they cannot tell us whether this is happening — they'd all
-inherit the same quirk.
+Train a detector with a *different architecture and training loop* — e.g. `microsoft/codebert-base`
+(code-pretrained) or `roberta-base` (generic) via standard `AutoModelForSequenceClassification` — on
+the **original** DroidCollection, then run the same `black` ablation.
+- If it **also flips** under `black`: the confound is inherited by an independent recipe, so it is a
+  property of the **data**, not of the DroidDetect recipe. (Strongly expected — see the retracted-framing
+  note; this is the data hypothesis's prediction.)
+- If it **does not flip**: the confound is somehow specific to the DroidDetect recipe — a surprising
+  result worth chasing.
 
-**Why a different tokenizer is informative.** Train a model with a *different* tokenizer —
-e.g. `roberta-base` (generic BPE) or `microsoft/codebert-base` (code BPE) — on the **original**
-DroidCollection, then run the same `black` ablation:
-- If it **also flips** under `black`: the effect cannot be a ModernBERT-tokenization quirk, because a
-  different tokenizer reproduced it. The cause must be in the data. ✅ kills the alternative.
-- If it **does not flip**: part of our headline really is a ModernBERT-specific tokenization story,
-  and we'd have to re-scope the claim. (This would itself be an important, surprising finding.)
-
-It also doubles as the "independent architecture" generality test: a non-DroidDetect model, our own
-training loop, confirming the confound is not specific to their recipe.
-
-> Note: RoBERTa is *not code-pretrained*; CodeBERT is. Running both is cheap and brackets the
-> question "does this need a code-aware encoder?" I'd run CodeBERT as primary, RoBERTa as a bonus.
+This is a generality control, **not** a tokenizer test. Because both hypotheses predict a flip, B's
+main value is confirming the confound is recipe-agnostic; it is strictly secondary to Experiment A,
+which is the direct, decisive test. RoBERTa is not code-pretrained and CodeBERT is, so running both
+also brackets "does this need a code-aware encoder?"
 
 ---
 
 ## How A and B fit together
 
-| | trained on | tokenizer | answers |
+| | trained on | architecture | answers |
 |---|---|---|---|
-| **A-control** | original data | ModernBERT | does our training loop reproduce DroidDetect? (sanity) |
-| **A-treatment** | `black`-normalized data | ModernBERT | is the confound *removable* / how much is formatting? |
-| **B** | original data | RoBERTa/CodeBERT (different) | is the flip data-driven or a ModernBERT-tokenizer artifact? |
+| **A-control** | original data | ModernBERT (DroidDetect head) | does our training loop reproduce DroidDetect? (sanity gate) |
+| **A-treatment** | `black`-normalized data | ModernBERT (DroidDetect head) | is the confound *removable* / how much of the score is formatting? |
+| **B** | original data | CodeBERT/RoBERTa (independent) | does an independent recipe inherit the confound? (data vs recipe) |
 
 A answers "is formatting the cause and can we fix it?"; B answers "is the cause the *data* (vs the
-*recipe/tokenizer*)?" Together they discharge both surviving alternatives. If budget is tight, **A
-is the more direct test of the headline; B is the more rigorous generality control.**
+DroidDetect *recipe*)?" If budget is tight, **A is the direct, decisive test of the headline; B is a
+secondary generality control whose outcome the data hypothesis already predicts.**
+
+## Compute / time estimate (this machine)
+Measured: ModernBERT-base fine-tuning on **GPU1 (Quadro RTX 8000, 46 GB)** runs at **~55 samples/sec**
+at seq-len 512, fp16 (batch 32 uses 12.5 GB; the recipe's batch 64 fits). DroidDetect's recipe is
+**3 epochs**; the DroidCollection Python *train* subset is **not published** but is ≈130k samples
+(~167k Python rows × 0.8 train split).
+
+| Python train size | one 3-epoch run | Experiment A (control + treatment) |
+|---|---|---|
+| ~90k | ~1.4 h | ~2.7 h + preprocessing |
+| **~130k (best guess)** | **~2.0 h** | **~3.9 h + preprocessing** |
+| ~170k | ~2.6 h | ~5.2 h + preprocessing |
+
+So **~2 hours per full 3-epoch run**, and **~4 hours of GPU time** for the complete Experiment A
+(both runs), plus a one-time `black` pass over the corpus (~15–30 min) and minutes for eval. Adding
+Experiment B is one more ~2 h run. The whole program fits in a single session. Caveats: the exact
+Python count and DroidDetect's training `max_len`/precision are unpublished (pin them from the
+project's GitHub training scripts for a precise figure); the contrastive triplet term adds only
+minor per-step overhead; fp16 assumed (fp32 on Turing would be ~2× slower, but our reproduction would
+use AMP).
 
 ## Implementation notes (importing, not reimplementing)
 - Use HuggingFace `Trainer` + `AutoModelForSequenceClassification` for B (standard, off-the-shelf).
