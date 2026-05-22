@@ -1,0 +1,78 @@
+# Source of truth for the bibliography. Each [[cite]] = key + ONE identifier + claim.
+# Run: uv run python scripts/build_bib.py   (then scripts/verify_cites.py)
+# Metadata (authors/title/year/venue) is fetched from arXiv — never hand-typed.
+# Manual entries (software/datasets with no arXiv/DOI) are flagged with manual=true.
+
+[[cite]]
+key   = "orel2025droid"
+arxiv = "2507.10583"
+claim = "DroidCollection dataset + DroidDetect detector; the trained detector we audit. Reports i.i.d. F1 and cross-domain collapse (their Table 3); §E.2 attention interpretability."
+
+[[cite]]
+key   = "bao2023fastdetectgpt"
+arxiv = "2310.05130"
+claim = "Fast-DetectGPT: analytic conditional-probability-curvature zero-shot detector; one of our two statistical baselines."
+
+[[cite]]
+key   = "mitchell2023detectgpt"
+arxiv = "2301.11305"
+claim = "DetectGPT: probability-curvature zero-shot detection; predecessor of Fast-DetectGPT."
+
+[[cite]]
+key   = "hans2024binoculars"
+arxiv = "2401.12070"
+claim = "Binoculars: cross-perplexity ratio zero-shot detector; our second statistical baseline."
+
+[[cite]]
+key   = "warner2024modernbert"
+arxiv = "2412.13663"
+claim = "ModernBERT encoder; the backbone DroidDetect fine-tunes."
+
+[[cite]]
+key   = "geirhos2020shortcut"
+arxiv = "2004.07780"
+claim = "Shortcut learning: classifiers exploiting spurious surface features that fail to generalize; the lens for our formatting-shortcut finding."
+
+[[cite]]
+key   = "liang2023detectors"
+arxiv = "2304.02819"
+claim = "GPT detectors are biased against non-native English writers; prior evidence that text detectors key on surface artifacts and produce systematic false positives."
+
+[[cite]]
+key    = "langa2020black"
+manual = true
+claim  = "black, the deterministic Python code formatter used for the semantics-preserving ablation."
+entry  = """
+@misc{langa2020black,
+  author       = {Langa, {\\L}ukasz and {Black contributors}},
+  title        = {Black: The Uncompromising {Python} Code Formatter},
+  year         = {2020},
+  howpublished = {\\url{https://github.com/psf/black}}
+}
+"""
+
+[[cite]]
+key    = "matrixstudio2024codeforces"
+manual = true
+claim  = "MatrixStudio Codeforces-Python-Submissions: the human Codeforces corpus (different scrape from DroidCollection)."
+entry  = """
+@misc{matrixstudio2024codeforces,
+  author       = {{MatrixStudio}},
+  title        = {Codeforces-{Python}-Submissions},
+  year         = {2024},
+  howpublished = {\\url{https://huggingface.co/datasets/MatrixStudio/Codeforces-Python-Submissions}}
+}
+"""
+
+[[cite]]
+key    = "atcoder"
+manual = true
+claim  = "AtCoder: source of the author-Elo confirmatory cohort."
+entry  = """
+@misc{atcoder,
+  author       = {{AtCoder Inc.}},
+  title        = {{AtCoder} Programming Contests},
+  year         = {2024},
+  howpublished = {\\url{https://atcoder.jp}}
+}
+"""

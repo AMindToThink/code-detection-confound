@@ -1,4 +1,13 @@
+> ⚠️ **Done by AI, not verified by human.** This entire repository — code, experiments,
+> figures, and the write-up in `paper/` — was produced *autonomously* by an AI agent
+> (Claude Code). **None of it has been checked by a human yet.** Treat every result and
+> claim as provisional. Human verification is explicitly requested (see the open issue).
+
 # Skill vs. Species in AI Code Detection
+
+> **Headline update:** the sharpest finding is *not* about skill. The strongest off-the-shelf
+> trained detector (DroidDetect) has its verdict **gated by code formatting**: running its own
+> human test data through `black` flips it from ~1% to ~83% "machine." See `paper/paper.pdf`.
 
 Does an "AI code detector" detect author **species** (human vs LLM) or author
 **skill/style**? Post-RLHF code models imitate idiomatic "senior-engineer" style, so a

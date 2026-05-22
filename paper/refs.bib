@@ -1,0 +1,123 @@
+% paper/refs.bib -- GENERATED FILE, DO NOT EDIT BY HAND.
+%
+% Regenerate with:  uv run python scripts/build_bib.py
+% Source of truth:  paper/refs_ids.toml
+% See also:         paper/CITATIONS.md
+%
+% Each entry is preceded by a `% source:` line naming the authoritative
+% identifier (arXiv ID, DOI, or ACL Anthology ID) and a `% claim:` line
+% naming the specific claim our paper makes against this reference. If
+% you find an entry whose author list, title, or year looks wrong, DO
+% NOT edit refs.bib -- edit refs_ids.toml and re-run the script.
+
+% source: arxiv:2507.10583
+% claim : DroidCollection dataset + DroidDetect detector; the trained detector we audit. Reports i.i.d. F1 and cross-domain collapse (their Table 3); §E.2 attention interpretability.
+@misc{orel2025droid,
+  author         = {Daniil Orel and Indraneil Paul and Iryna Gurevych and Preslav Nakov},
+  title          = {$\texttt{Droid}$: A Resource Suite for AI-Generated Code Detection},
+  year           = {2025},
+  eprint         = {2507.10583},
+  archivePrefix  = {arXiv},
+  primaryClass   = {cs.SE},
+  url            = {http://arxiv.org/abs/2507.10583v3}
+}
+
+% source: arxiv:2310.05130
+% claim : Fast-DetectGPT: analytic conditional-probability-curvature zero-shot detector; one of our two statistical baselines.
+@misc{bao2023fastdetectgpt,
+  author         = {Guangsheng Bao and Yanbin Zhao and Zhiyang Teng and Linyi Yang and Yue Zhang},
+  title          = {Fast-DetectGPT: Efficient Zero-Shot Detection of Machine-Generated Text via Conditional Probability Curvature},
+  year           = {2023},
+  eprint         = {2310.05130},
+  archivePrefix  = {arXiv},
+  primaryClass   = {cs.CL},
+  url            = {http://arxiv.org/abs/2310.05130v3}
+}
+
+% source: arxiv:2301.11305
+% claim : DetectGPT: probability-curvature zero-shot detection; predecessor of Fast-DetectGPT.
+@misc{mitchell2023detectgpt,
+  author         = {Eric Mitchell and Yoonho Lee and Alexander Khazatsky and Christopher D. Manning and Chelsea Finn},
+  title          = {DetectGPT: Zero-Shot Machine-Generated Text Detection using Probability Curvature},
+  year           = {2023},
+  eprint         = {2301.11305},
+  archivePrefix  = {arXiv},
+  primaryClass   = {cs.CL},
+  url            = {http://arxiv.org/abs/2301.11305v2}
+}
+
+% source: arxiv:2401.12070
+% claim : Binoculars: cross-perplexity ratio zero-shot detector; our second statistical baseline.
+@misc{hans2024binoculars,
+  author         = {Abhimanyu Hans and Avi Schwarzschild and Valeriia Cherepanova and Hamid Kazemi and Aniruddha Saha and Micah Goldblum and Jonas Geiping and Tom Goldstein},
+  title          = {Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text},
+  year           = {2024},
+  eprint         = {2401.12070},
+  archivePrefix  = {arXiv},
+  primaryClass   = {cs.CL},
+  url            = {http://arxiv.org/abs/2401.12070v3}
+}
+
+% source: arxiv:2412.13663
+% claim : ModernBERT encoder; the backbone DroidDetect fine-tunes.
+@misc{warner2024modernbert,
+  author         = {Benjamin Warner and Antoine Chaffin and Benjamin Clavié and Orion Weller and Oskar Hallström and Said Taghadouini and Alexis Gallagher and Raja Biswas and Faisal Ladhak and Tom Aarsen and Nathan Cooper and Griffin Adams and Jeremy Howard and Iacopo Poli},
+  title          = {Smarter, Better, Faster, Longer: A Modern Bidirectional Encoder for Fast, Memory Efficient, and Long Context Finetuning and Inference},
+  year           = {2024},
+  eprint         = {2412.13663},
+  archivePrefix  = {arXiv},
+  primaryClass   = {cs.CL},
+  url            = {http://arxiv.org/abs/2412.13663v2}
+}
+
+% source: arxiv:2004.07780
+% claim : Shortcut learning: classifiers exploiting spurious surface features that fail to generalize; the lens for our formatting-shortcut finding.
+@misc{geirhos2020shortcut,
+  author         = {Robert Geirhos and Jörn-Henrik Jacobsen and Claudio Michaelis and Richard Zemel and Wieland Brendel and Matthias Bethge and Felix A. Wichmann},
+  title          = {Shortcut Learning in Deep Neural Networks},
+  year           = {2020},
+  eprint         = {2004.07780},
+  archivePrefix  = {arXiv},
+  primaryClass   = {cs.CV},
+  doi            = {10.1038/s42256-020-00257-z},
+  url            = {http://arxiv.org/abs/2004.07780v5}
+}
+
+% source: arxiv:2304.02819
+% claim : GPT detectors are biased against non-native English writers; prior evidence that text detectors key on surface artifacts and produce systematic false positives.
+@misc{liang2023detectors,
+  author         = {Weixin Liang and Mert Yuksekgonul and Yining Mao and Eric Wu and James Zou},
+  title          = {GPT detectors are biased against non-native English writers},
+  year           = {2023},
+  eprint         = {2304.02819},
+  archivePrefix  = {arXiv},
+  primaryClass   = {cs.CL},
+  url            = {http://arxiv.org/abs/2304.02819v3}
+}
+
+% source: manual
+% claim : black, the deterministic Python code formatter used for the semantics-preserving ablation.
+@misc{langa2020black,
+  author       = {Langa, {\L}ukasz and {Black contributors}},
+  title        = {Black: The Uncompromising {Python} Code Formatter},
+  year         = {2020},
+  howpublished = {\url{https://github.com/psf/black}}
+}
+
+% source: manual
+% claim : MatrixStudio Codeforces-Python-Submissions: the human Codeforces corpus (different scrape from DroidCollection).
+@misc{matrixstudio2024codeforces,
+  author       = {{MatrixStudio}},
+  title        = {Codeforces-{Python}-Submissions},
+  year         = {2024},
+  howpublished = {\url{https://huggingface.co/datasets/MatrixStudio/Codeforces-Python-Submissions}}
+}
+
+% source: manual
+% claim : AtCoder: source of the author-Elo confirmatory cohort.
+@misc{atcoder,
+  author       = {{AtCoder Inc.}},
+  title        = {{AtCoder} Programming Contests},
+  year         = {2024},
+  howpublished = {\url{https://atcoder.jp}}
+}

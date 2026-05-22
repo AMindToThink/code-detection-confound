@@ -131,6 +131,34 @@ def main() -> None:
         put("FmtHumanBlackSim", cfd["DroidCollection_human"]["black_similarity_mean"])
         put("FmtMachineBlackSim", cfd["DroidCollection_machine"]["black_similarity_mean"])
 
+    # Finding 7: family-sibling detectors (different size/granularity, same authors+data).
+    # Numbers come from results/other_detectors.json (scripts/10_other_detectors.py).
+    oth_path = C.RESULTS / "other_detectors.json"
+    if oth_path.exists():
+        oth = json.loads(oth_path.read_text())
+        sib_token = {  # repo id -> short letters-only macro token
+            "project-droid/DroidDetect-Base-Binary": "BaseBinary",
+            "project-droid/DroidDetect-Base": "BaseFour",
+            "project-droid/DroidDetect-Large-Binary": "LargeBinary",
+        }
+        for repo, tok in sib_token.items():
+            if repo not in oth:
+                continue
+            r = oth[repo]
+            put(f"Sib{tok}NClasses", r["n_classes"], 0)
+            put(f"Sib{tok}HumanOrig", r["dc_human_original"])
+            put(f"Sib{tok}HumanBlack", r["dc_human_black"])
+            put(f"Sib{tok}Machine", r["dc_machine"])
+            put(f"Sib{tok}MsHuman", r["matrixstudio_human"])
+            put(f"Sib{tok}LegAll", r["legendary_all"])
+        # smallest and largest human-black flip across the whole family (for prose bounds)
+        blacks = [r["dc_human_black"] for r in oth.values()]
+        origs = [r["dc_human_original"] for r in oth.values()]
+        put("SibFamilyHumanBlackMin", min(blacks))
+        put("SibFamilyHumanBlackMax", max(blacks))
+        put("SibFamilyHumanOrigMax", max(origs))
+        put("SibFamilyN", len(oth), 0)
+
     # DroidDetect in-distribution validation (proof the implementation is faithful)
     val_path = C.RESULTS / "droiddetect_validation.json"
     if val_path.exists():
