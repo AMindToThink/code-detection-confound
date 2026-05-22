@@ -130,7 +130,12 @@ def main() -> None:
         save_strategy="steps", save_steps=20 if args.smoke else 250, save_total_limit=2,
         load_best_model_at_end=True, metric_for_best_model="auroc", greater_is_better=True,
         logging_strategy="steps", logging_steps=5 if args.smoke else 10,
-        report_to=[], seed=0, dataloader_num_workers=4, disable_tqdm=True)
+        # wandb is the human's dashboard (set WANDB_API_KEY in .env, WANDB_PROJECT env);
+        # JSONL telemetry remains as the script-readable backup. TensorBoard is optional —
+        # add "tensorboard" to this list if `pip install tensorboard` is in the env.
+        report_to=["wandb"],
+        run_name=f"{args.variant}_modernbert" + ("_smoke" if args.smoke else ""),
+        seed=0, dataloader_num_workers=4, disable_tqdm=True)
 
     trainer = Trainer(model=model, args=targs, train_dataset=train_ds, eval_dataset=val_ds,
                       data_collator=DataCollatorWithPadding(tok), compute_metrics=compute_metrics,
