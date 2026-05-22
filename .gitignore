@@ -21,3 +21,4 @@ paper/*.out
 paper/*.synctex.gz
 results/train/
 .agent-status.flag
+wandb/

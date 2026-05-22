@@ -94,6 +94,10 @@ def main() -> None:
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
     out = Path(args.out)
+    # Truncate metrics.jsonl as the FIRST thing so a watchdog launched at the same time
+    # doesn't trip on the stale file from a previous run while we're still importing/loading.
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "metrics.jsonl").write_text("")
 
     train_pq = ("droid_py_train_bal.parquet" if args.variant == "original"
                 else "droid_py_train_bal_black.parquet")
