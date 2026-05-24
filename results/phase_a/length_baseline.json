@@ -1,0 +1,46 @@
+{
+  "python": {
+    "lang": "python",
+    "n_train": 225693,
+    "n_valid": 28234,
+    "auc_2feat": 0.7680476114436052,
+    "auc_2feat_ci": [
+      0.7626531111218198,
+      0.7734492848093591
+    ],
+    "auc_chars_only": 0.7695628339169207,
+    "auc_bpe_only": 0.7681437609384225,
+    "coef": [
+      -2.5040751327959763,
+      0.929392961006636
+    ],
+    "intercept": -0.17812519055853376,
+    "verdict": "OK                 (length not a sufficient classifier)",
+    "chars_mean_human": 664.836843413716,
+    "chars_mean_machine": 320.7633838942201,
+    "bpe_mean_human": 189.9381681287069,
+    "bpe_mean_machine": 90.8183699641799
+  },
+  "java": {
+    "lang": "java",
+    "n_train": 151756,
+    "n_valid": 18911,
+    "auc_2feat": 0.6364016734023623,
+    "auc_2feat_ci": [
+      0.6289086109018032,
+      0.6448483667491236
+    ],
+    "auc_chars_only": 0.5361141554481792,
+    "auc_bpe_only": 0.5632232155362235,
+    "coef": [
+      1.2983146910330414,
+      -1.8188648012845428
+    ],
+    "intercept": -0.022730758916993308,
+    "verdict": "OK                 (length not a sufficient classifier)",
+    "chars_mean_human": 446.4887409152888,
+    "chars_mean_machine": 354.8491412676962,
+    "bpe_mean_human": 116.94424072333497,
+    "bpe_mean_machine": 86.8522508101867
+  }
+}

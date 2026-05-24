@@ -1,6 +1,11 @@
 # data artifacts (regenerable; can be large)
 data/*.parquet
 data/repos/
+# regenerable from external/CodeGPTSensor/dataset/ via scripts/15_format_hmcorp.py
+# (~1.3 GB; takes ~30 min to rebuild)
+data/hmcorp/
+# training-run checkpoints + telemetry (large; reproducible from scripts/18_*)
+results/cgs/
 # secrets (never commit API keys)
 .env
 .env.*
@@ -22,3 +27,4 @@ paper/*.synctex.gz
 results/train/
 .agent-status.flag
 wandb/
+external/
