@@ -25,7 +25,11 @@ import time
 from pathlib import Path
 
 POLL = 30
-MAX_STALL = 360       # 6 min — generous; first epoch may include long eval pass
+MAX_STALL = 600       # 10 min between metrics writes; covers in-epoch eval phase too
+STARTUP_GRACE = 900   # 15 min — tokenization of full HMCorp train (~225k rows
+                      # Python) takes ~6 min and the first JsonlMonitor write isn't
+                      # until step 10, so a hard stall check before this grace
+                      # period legitimately false-positives. Skip during grace.
 HARD_WALL = 24 * 3600
 NO_IMPROVE_S = 6 * 3600
 DISK_ALARM_GB = 2.0
@@ -85,13 +89,17 @@ def main() -> None:
             alarm(f"disk free {free:.2f} GB < hard threshold {DISK_HARD_GB} GB — "
                   f"training about to crash; surface NOW")
 
-        # metrics file
+        # metrics file — skip stall checks during STARTUP_GRACE (tokenization phase
+        # legitimately produces no metrics for ~6 min on Python's 225k rows)
+        in_grace = (now - t0) < STARTUP_GRACE
         if not metrics.exists():
-            if now - t0 > MAX_STALL:
-                alarm("metrics file missing past MAX_STALL — training never started?")
+            if not in_grace:
+                alarm("metrics file missing past STARTUP_GRACE — training never started?")
+            print(f"[wd t={int(now-t0)}s free={free:.1f}G grace=warmup last=(no metrics yet)]",
+                  flush=True)
             continue
         last_write = max(t0, metrics.stat().st_mtime)
-        if now - last_write > MAX_STALL:
+        if not in_grace and (now - last_write > MAX_STALL):
             alarm(f"metrics stalled > {MAX_STALL}s (process hung/died)")
 
         # best-checkpoint improvement watch (only meaningful after first epoch)
