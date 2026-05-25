@@ -32,3 +32,6 @@ results/train/
 .agent-status.flag
 wandb/
 external/
+
+# regenerable from droid_py_train_bal.parquet via scripts/29_dc_prepare.py
+data/droid_py/
