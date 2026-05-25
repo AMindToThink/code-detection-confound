@@ -90,18 +90,28 @@ class CodeOnlyDataset(Dataset):
 
 
 def expected_calibration_error(probs: np.ndarray, labels: np.ndarray, n_bins: int = 10) -> float:
-    """ECE on binary predictions: |confidence - accuracy| weighted by bin mass."""
-    bins = np.linspace(0, 1, n_bins + 1)
+    """Standard binary-classification ECE: for each row, confidence in the model's
+    PREDICTED class = max(p1, 1-p1), and accuracy in the bin = fraction of rows
+    correctly classified. Bins are on confidence (not on p1), so an over-confident
+    50:50 prediction lands in the lowest-confidence bin regardless of which class
+    it predicts.
+
+    ECE = sum_b (n_b / N) * |mean_confidence_b - accuracy_b|
+    """
+    conf = np.maximum(probs, 1.0 - probs)              # confidence in chosen class
+    correct = (labels == (probs > 0.5)).astype(float)  # 1 if right, 0 if wrong
+    bins = np.linspace(0.5, 1.0, n_bins + 1)            # confidence ranges from 0.5 to 1.0
     ece = 0.0
     N = len(probs)
     for i in range(n_bins):
         lo, hi = bins[i], bins[i + 1]
-        mask = (probs >= lo) & (probs < hi if i < n_bins - 1 else probs <= hi)
+        if i < n_bins - 1:
+            mask = (conf >= lo) & (conf < hi)
+        else:
+            mask = (conf >= lo) & (conf <= hi)
         if mask.sum() == 0:
             continue
-        conf = probs[mask].mean()
-        acc = (labels[mask] == (probs[mask] > 0.5)).mean()
-        ece += (mask.sum() / N) * abs(conf - acc)
+        ece += (mask.sum() / N) * abs(conf[mask].mean() - correct[mask].mean())
     return float(ece)
 
 
