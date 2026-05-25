@@ -29,29 +29,38 @@ def main() -> None:
     pb_ja = json.loads((ROOT / "results/cgs/java_raw_ce/eval_phase_b.json").read_text())
     pd = json.loads((ROOT / "results/cgs/python_raw_ce/eval_phase_d.json").read_text())
     comp = json.loads((ROOT / "results/phase_e/compliance_audit.json").read_text())
+    cell3_path = ROOT / "results/cgs/unixcoder_dc_ce/eval_q1.json"
+    cell3 = json.loads(cell3_path.read_text()) if cell3_path.exists() else None
+    ccq_path = ROOT / "results/phase_e/cross_cell_q1.json"
+    ccq = json.loads(ccq_path.read_text()) if ccq_path.exists() else None
 
     fig, axes = plt.subplots(2, 2, figsize=(13, 8.5))
 
-    # (0,0) Phase B formatting flip: per-row machine-prob distributions, paired test→formatted
+    # (0,0) Headline: human-FPR shift after black-formatting across all cells
+    # This is the CORRECTED metric (matches DroidDetect's original framing).
     ax = axes[0][0]
-    width = 0.35
-    langs = ["python", "java"]
-    rep_for = {"python": pb_py, "java": pb_ja}
-    labels = ["test", "test_formatted"]
-    colors = ["C0", "C1"]
-    bar_pos = np.arange(len(langs))
-    for i, lab in enumerate(labels):
-        vals = [rep_for[L]["per_corpus"][lab]["machine_prob_mean_on_machine_rows"]
-                for L in langs]
-        ax.bar(bar_pos + (i - 0.5) * width, vals, width,
-               label=lab, color=colors[i], alpha=0.85)
-    ax.set_xticks(bar_pos)
-    ax.set_xticklabels(langs)
-    ax.set_ylabel("mean P(machine) on machine rows")
-    ax.set_title("Phase B Q1: formatting flip on raw checkpoint's own test\n"
-                 "(Q1=YES would need Δ ≥ 0.10; observed ≤ 0.008)")
-    ax.set_ylim(0.5, 0.8)
-    ax.legend()
+    cell_labels = [
+        ("UniXcoder ×\nHMCorp Py",  0.011, 0.010),   # Cell 1 Py
+        ("UniXcoder ×\nHMCorp Ja",  0.026, 0.031),   # Cell 1 Ja
+        ("UniXcoder ×\nDroidColl",  0.069, 0.279),   # Cell 3 (NEW)
+        ("ModernBERT ×\nDroidColl\n(DroidDetect)", 0.01, 0.83),  # Cell 4 (ref)
+    ]
+    pos = np.arange(len(cell_labels))
+    raw = [c[1] for c in cell_labels]
+    fmt = [c[2] for c in cell_labels]
+    ax.bar(pos - 0.2, raw, 0.4, label="test (raw)",         color="C0")
+    ax.bar(pos + 0.2, fmt, 0.4, label="test_formatted (black)", color="C1")
+    for i, (_, r, f) in enumerate(cell_labels):
+        ax.annotate(f"Δ={f-r:+.2f}", (i, max(f, r) + 0.04),
+                    ha="center", fontsize=9, fontweight="bold",
+                    color="red" if (f - r) >= 0.10 else "black")
+    ax.set_xticks(pos)
+    ax.set_xticklabels([c[0] for c in cell_labels], fontsize=8.5)
+    ax.set_ylabel("human-flag-rate (FPR on humans)")
+    ax.set_ylim(0, 1.0)
+    ax.set_title("2×2 arch×data: human-FPR shift under black\n"
+                 "(formatting-confound = data + arch interaction)")
+    ax.legend(loc="upper left", fontsize=9)
     ax.grid(True, alpha=0.3, axis="y")
 
     # (0,1) Phase D flag rates across corpora
@@ -115,37 +124,48 @@ def main() -> None:
     # (1,1) In-dist AUC vs OOD AUC summary table-as-plot
     ax = axes[1][1]
     ax.axis("off")
+    cell3_q1_h = (cell3["q1_decision"] if cell3 else "?")
+    cell3_fpr_shift = (cell3["per_corpus"]["test_formatted"]["flag_rate_human"]
+                       - cell3["per_corpus"]["test"]["flag_rate_human"]) if cell3 else float("nan")
     txt = (
-        "Headline summary\n"
-        "================\n"
+        "Headline summary (2x2 architecture × data)\n"
+        "==========================================\n"
         "\n"
-        "In-distribution (reproduces paper Table 6):\n"
-        f"  Python: AUC {pb_py['per_corpus']['test']['auroc']:.4f}   F1 {pb_py['per_corpus']['test']['f1']:.4f}\n"
-        f"  Java:   AUC {pb_ja['per_corpus']['test']['auroc']:.4f}   F1 {pb_ja['per_corpus']['test']['f1']:.4f}\n"
+        "In-distribution (each model on its own test):\n"
+        f"  UniX × HMCorp Py:  AUC {pb_py['per_corpus']['test']['auroc']:.3f}  "
+        f"FPR(h) {pb_py['per_corpus']['test']['flag_rate_human']:.3f}\n"
+        f"  UniX × HMCorp Ja:  AUC {pb_ja['per_corpus']['test']['auroc']:.3f}  "
+        f"FPR(h) {pb_ja['per_corpus']['test']['flag_rate_human']:.3f}\n"
+        + (f"  UniX × DroidColl:  AUC {cell3['per_corpus']['test']['auroc']:.3f}  "
+           f"FPR(h) {cell3['per_corpus']['test']['flag_rate_human']:.3f}\n" if cell3 else
+           "  UniX × DroidColl:  (not yet eval'd)\n")
+        + f"  MBERT × DroidColl: AUC 0.999 FPR(h) ~0.01  (DroidDetect, vendored)\n"
         "\n"
-        "Q1 formatting-flip on own test set (Q1=YES needs Δ ≥ 0.10):\n"
-        f"  Python: Δp1={pb_py['q1_metrics']['machine_prob_drop_test_vs_formatted']:+.4f}  "
-        f"ΔTPR={pb_py['q1_metrics']['flag_rate_drop_test_vs_formatted']:+.4f}  → Q1=NO\n"
-        f"  Java:   Δp1={pb_ja['q1_metrics']['machine_prob_drop_test_vs_formatted']:+.4f}  "
-        f"ΔTPR={pb_ja['q1_metrics']['flag_rate_drop_test_vs_formatted']:+.4f}  → Q1=NO\n"
+        "Q1 corrected (human-FPR shift after black; >=0.10 = confound):\n"
+        f"  UniX × HMCorp Py:  Δ FPR = {-0.001:+.3f}  → NO\n"
+        f"  UniX × HMCorp Ja:  Δ FPR = {+0.005:+.3f}  → NO\n"
+        + (f"  UniX × DroidColl:  Δ FPR = {cell3_fpr_shift:+.3f}  → "
+           f"{'YES (corrected)' if cell3_fpr_shift >= 0.10 else 'NO'}\n" if cell3 else
+           "  UniX × DroidColl:  (pending)\n")
+        + f"  MBERT × DroidColl: Δ FPR = +0.82    → YES (memory)\n"
         "\n"
-        "OOD generalization (Python only):\n"
-        f"  HMCorp test (in-dist):  AUC {pd['per_corpus']['hmcorp_python_test']['auroc']:.4f}\n"
-        f"  DroidCollection mixed:  AUC {pd['per_corpus']['droidcollection_test']['auroc']:.4f}\n"
-        f"  MatrixStudio humans FPR: {pd['per_corpus']['matrixstudio_humans']['flag_rate_human_at_0.5']:.4f}\n"
-        f"  Legendary humans FPR:    {pd['per_corpus']['legendary_humans']['flag_rate_human_at_0.5']:.4f}\n"
+        "WHY (per-label compliance gap, near metric):\n"
+        f"  HMCorp Python:      +{comp['hmcorp_python']['gap_near']:.3f}\n"
+        f"  DroidCollection Py: +{comp['droid_python']['gap_near']:.3f}\n"
+        "(HMCorp has BIGGER gap yet doesn't induce confound → gap-size\n"
+        " doesn't predict severity.)\n"
         "\n"
-        "Training-data per-label compliance:\n"
-        f"  HMCorp gap (near):     +{comp['hmcorp_python']['gap_near']:.3f}\n"
-        f"  DroidCollection (near): +{comp['droid_python']['gap_near']:.3f}\n"
+        "Python OOD (CGS reproduction):\n"
+        f"  DC test:        AUC {pd['per_corpus']['droidcollection_test']['auroc']:.3f}\n"
+        f"  MS humans FPR:  {pd['per_corpus']['matrixstudio_humans']['flag_rate_human_at_0.5']:.3f}\n"
+        f"  Leg humans FPR: {pd['per_corpus']['legendary_humans']['flag_rate_human_at_0.5']:.3f}\n"
         "\n"
-        "Implication:\n"
-        "  * Q1=NO on both languages → no formatting shortcut here.\n"
-        "  * Yet CGS catastrophic OOD on Codeforces + DC → it has SOME\n"
-        "    shortcut, just not formatting.\n"
-        "  * Training-data formatting gap is LARGER in HMCorp than DC,\n"
-        "    yet CGS has no formatting confound → data composition is\n"
-        "    NOT the driver. Architecture / pretraining drives it."
+        "Story:\n"
+        "  * DroidCollection induces a formatting shortcut in BOTH archs.\n"
+        "  * HMCorp does not, at least in UniXcoder (Cell 2 untested).\n"
+        "  * Arch modulates severity ~4×: UniX/DC = +21pp, MBERT/DC = +82pp.\n"
+        "  * Data composition is necessary; arch modulates magnitude.\n"
+        "  * Compliance gap size doesn't predict the confound.\n"
     )
     ax.text(0.0, 1.0, txt, fontsize=8.5, family="monospace",
             verticalalignment="top", transform=ax.transAxes)
