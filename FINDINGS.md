@@ -147,3 +147,110 @@ black-flip + legendary probe on all three published DroidDetect siblings (`resul
   -ForSequenceClassification) on DroidCollection to prove the confound is in the DATA, not the
   DroidDetect recipe. Only out-of-the-box detectors that exist on HF are the DroidDetect family;
   any further generality test requires training one ourselves.
+
+---
+
+## Findings 8–11 (2026-05-25 session, CodeGPTSensor reproduction + 2x2)
+
+### Finding 8 — CodeGPTSensor in-distribution does NOT exhibit a formatting confound
+Trained CodeGPTSensor (Xu et al., TOSEM 2025; UniXcoder-base-nine encoder, CE-only
+fine-tune) on HMCorp Python (225k rows) and Java (152k rows) following their
+published recipe (CGS pipeline imported verbatim from `external/CodeGPTSensor/`;
+AMP-FP16, batch 8, lr 2e-5, seq 400, 20-ep cap, patience-5 ES on val_loss).
+
+Reproduces paper Table 6 numbers:
+- Python: F1 0.988, AUROC 0.999 (paper: F1 0.992, AUROC 0.999)
+- Java:   F1 0.965, AUROC 0.995 (paper: F1 0.968, AUROC 0.995)
+
+Formatting flip (test → test_formatted) on **machine class**:
+- Python: machine-prob drops by +0.0007; TPR drops by +0.16 pp.
+- Java:   machine-prob drops by +0.008;  TPR drops by +1.7 pp.
+
+Pre-registered Q1 threshold was ≥ 0.10 on either metric. **Q1 = NO for both
+languages on the pre-registered side.** Phase C (CodeGPTSensorBlack) skipped per
+pre-registered decision tree.
+
+`results/cgs/{python,java}_raw_ce/eval_phase_b.json`.
+
+### Finding 9 — Length is not the discriminative signal
+Pre-flight length-only logistic regression on HMCorp valid achieves AUROC
+0.768 (Python) and 0.636 (Java) — both clear the < 0.80 "length not a sufficient
+classifier" threshold from the pre-registered plan. Length-matched test slices
+built (Python 17,380 / Java 17,000 rows, per-label BPE-length medians exactly
+matched within 5%). Per-corpus AUC on length-matched slices stays ≥ 0.998
+(Python) / 0.991 (Java). The model's discriminative signal is not length.
+
+`results/phase_a/length_baseline.json`, `data/hmcorp/*/test_lenmatched*.jsonl`.
+
+### Finding 10 — CodeGPTSensor catastrophically fails OOD on DroidCollection's distribution
+Eval'd `python_raw_ce` on three OOD corpora:
+- HMCorp test (in-distribution reproduction): AUC 0.999, FPR 1.1%.
+- MatrixStudio Codeforces humans (n=614): flag rate 71.3% (humans flagged as
+  machine). DroidDetect ref: 62%.
+- Legendary pre-LLM Python humans (n=135, Sanfilippo/Hipp/CPython/Torvalds
+  2005–2013): flag rate 26.7%. DroidDetect ref: 78.5%.
+- DroidCollection test (n=23,405, mixed labels): **AUC 0.565** (near-chance).
+  Human FPR 89.5%, machine TPR 96.6% — the model says "everything is machine."
+
+Different shortcut from DroidDetect's — CGS doesn't latch onto formatting, but
+latches onto *something* that doesn't transfer to DroidCollection. Hypothesis
+(unconfirmed): "short docstring-completion style = machine," since gpt-3.5
+HMCorp outputs structurally resemble Codeforces snippets.
+
+In-distribution calibration is also poor: ECE 0.260 (correctly implemented
+binary-classification ECE on confidence-in-chosen-class). The model is
+overconfident.
+
+`results/cgs/python_raw_ce/eval_phase_d.json`.
+
+### Finding 11 — 2×2 architecture × data: BOTH matter, with data as the necessary condition
+Trained UniXcoder-base on DroidCollection Python (114k rows balanced) using the
+same CGS recipe (CE-only, AMP, batch 8, lr 2e-5, seq 400, 20-ep cap, patience-5
+ES). Best F1 0.948 / AUC 0.989. Ran the formatting-flip eval.
+
+**Pre-registration metric error discovered**: the Q1 trigger from the original
+plan was on the MACHINE class (TPR drop / mean machine-prob drop). The canonical
+DroidDetect formatting-confound symptom is on the HUMAN class (FPR increase
+after black-formatting → "humans look like machines"). The two metrics agree for
+severe confounds and clean cases; they diverge for moderate ones. Reporting both.
+
+| Cell | Arch | Data | Human FPR shift |
+|---|---|---|---|
+| 1 Py | UniXcoder | HMCorp Python | -0.001 |
+| 1 Ja | UniXcoder | HMCorp Java | +0.005 |
+| 3 | UniXcoder | DroidCollection | **+0.210** |
+| 4 (memory) | ModernBERT | DroidCollection | ~+0.82 |
+| 2 (untested) | ModernBERT | HMCorp | — |
+
+Interpretation:
+- DroidCollection induces a formatting shortcut in BOTH tested architectures.
+- HMCorp does not induce one in UniXcoder (Cell 2 with ModernBERT deferred).
+- Architecture modulates severity ~4× on the same data (UniXcoder +21 pp vs
+  ModernBERT +82 pp). UniXcoder's NL+PL pretraining provides partial robustness.
+- The training-data per-label compliance gap does NOT predict severity: HMCorp
+  has a +46 pp machine-vs-human black-near-compliance gap (vs DroidCollection's
+  +27 pp), yet HMCorp induces no confound.
+
+Story: data composition is **necessary** for the formatting shortcut to be
+learned; architecture **modulates the magnitude**. Naive "the data is class-
+imbalanced on formatting → the model learns formatting" is wrong as stated; the
+gap doesn't determine severity, and one architecture (UniXcoder on HMCorp)
+ignores even a +46-pp gap. Cell 2 (ModernBERT × HMCorp) would test the
+remaining cell of the 2×2 but was deferred for compute budget.
+
+`results/cgs/unixcoder_dc_ce/eval_q1.json`,
+`results/phase_e/cross_cell_q1.json`,
+`results/phase_e/compliance_audit.json`.
+
+## Status at end-of-session (2026-05-25)
+- All scripts, eval results, plots, and macros committed and pushed (13 commits
+  this session, up to `3f90f80`).
+- `paper/macros.tex` has 187 `\res…` macros — every number in the new findings
+  is referenceable by macro for the Phase E paper rewrite.
+- `paper/paper.tex` still has the pre-pivot framing; Phase E rewrite deferred to
+  next session. Cell 2 (ModernBERT × HMCorp) deferred to future work.
+- Wandb runs:
+  - https://wandb.ai/matthewkhoriaty-northwestern-university/code-detection-confound/runs/9570d850 (python_raw_ce)
+  - https://wandb.ai/matthewkhoriaty-northwestern-university/code-detection-confound/runs/9fa8c9fd (java_raw_ce)
+  - (unixcoder_dc_ce was tailed too; check the project page.)
+
