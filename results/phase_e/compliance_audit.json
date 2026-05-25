@@ -1,0 +1,60 @@
+{
+  "hmcorp_python": {
+    "0": {
+      "n_sampled": 3000,
+      "n_black_ok": 2974,
+      "compliance_rate_strict": 0.0,
+      "compliance_rate_near_p98": 0.17921990585070613,
+      "similarity_mean": 0.9032951373722066,
+      "similarity_median": 0.9227272727272727,
+      "n_total": 115403
+    },
+    "1": {
+      "n_sampled": 3000,
+      "n_black_ok": 2981,
+      "compliance_rate_strict": 0.2572962093257296,
+      "compliance_rate_near_p98": 0.6387118416638712,
+      "similarity_mean": 0.9644229814637872,
+      "similarity_median": 0.9912663755458515,
+      "n_total": 115403
+    },
+    "gap_strict": 0.2572962093257296,
+    "gap_near": 0.45949193581316505
+  },
+  "hmcorp_java": {
+    "0": {
+      "n_sampled": 3000,
+      "n_total": 88934,
+      "n_compliant": 0,
+      "compliance_rate": 0.0
+    },
+    "1": {
+      "n_sampled": 3000,
+      "n_total": 88934,
+      "n_compliant": 56,
+      "compliance_rate": 0.018666666666666668
+    }
+  },
+  "droid_python": {
+    "0": {
+      "n_sampled": 3000,
+      "n_black_ok": 2894,
+      "compliance_rate_strict": 0.0038009675190048375,
+      "compliance_rate_near_p98": 0.15618521078092606,
+      "similarity_mean": 0.8543673686664791,
+      "similarity_median": 0.882439744220364,
+      "n_total": 118683
+    },
+    "1": {
+      "n_sampled": 3000,
+      "n_black_ok": 2786,
+      "compliance_rate_strict": 0.05061019382627423,
+      "compliance_rate_near_p98": 0.4253409906676238,
+      "similarity_mean": 0.9437848628651273,
+      "similarity_median": 0.9716312056737588,
+      "n_total": 78416
+    },
+    "gap_strict": 0.04680922630726939,
+    "gap_near": 0.26915577988669775
+  }
+}

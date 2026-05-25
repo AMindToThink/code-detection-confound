@@ -1,0 +1,20 @@
+
+=== HMCorp Python (CodeGPTSensor training data) ===
+  human  : n=3000  strict=0.0000  near(>0.98)=0.1792  sim_mean=0.9033  sim_median=0.9227
+  machine: n=3000  strict=0.2573  near(>0.98)=0.6387  sim_mean=0.9644  sim_median=0.9913
+
+=== HMCorp Java (strict equality only) ===
+  human  : n=3000  strict=0.0000
+  machine: n=3000  strict=0.0187
+
+=== DroidCollection Python (DroidDetect training data) ===
+  human  : n=3000  strict=0.0038  near(>0.98)=0.1562  sim_mean=0.8544  sim_median=0.8824
+  machine: n=3000  strict=0.0506  near(>0.98)=0.4253  sim_mean=0.9438  sim_median=0.9716
+
+=== COMPLIANCE GAP per dataset (machine - human) ===
+  hmcorp_python    [strict]:  human=0.0000  machine=0.2573  gap=+0.2573
+  hmcorp_python    [  near]:  human=0.1792  machine=0.6387  gap=+0.4595
+  droid_python     [strict]:  human=0.0038  machine=0.0506  gap=+0.0468
+  droid_python     [  near]:  human=0.1562  machine=0.4253  gap=+0.2692
+
+wrote /home/cs29824/matthew/code-detection-confound/results/phase_e/compliance_audit.json

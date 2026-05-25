@@ -1,0 +1,69 @@
+{
+  "checkpoint": "results/cgs/python_raw_ce/checkpoint-best-f1/model.bin",
+  "lang": "python",
+  "calibration": {
+    "fpr_5pct_threshold": 0.2689616084098816
+  },
+  "per_corpus": {
+    "hmcorp_python_test": {
+      "n": 28240,
+      "machine_prob_mean": 0.5015423893928528,
+      "flag_rate_at_0.5": 0.5031869688385269,
+      "flag_rate_human_at_0.5": 0.01060045532157086,
+      "flag_rate_machine_at_0.5": 0.9913282571912013,
+      "auroc": 0.9989633110054343,
+      "auroc_ci": [
+        0.99863615472909,
+        0.9992716195139644
+      ],
+      "acc": 0.9903682719546743,
+      "f1": 0.9904205113756427,
+      "ece": 0.48885070741092185,
+      "fixed_threshold": 0.2689616084098816,
+      "flag_rate_at_fixed": 0.5258498583569405,
+      "flag_rate_human_at_fixed": 0.05001422879908936,
+      "flag_rate_machine_at_fixed": 0.9973914269599549
+    },
+    "matrixstudio_humans": {
+      "n": 614,
+      "machine_prob_mean": 0.5983467102050781,
+      "flag_rate_at_0.5": 0.7133550488599348,
+      "flag_rate_human_at_0.5": 0.7133550488599348,
+      "flag_rate_machine_at_0.5": null,
+      "fixed_threshold": 0.2689616084098816,
+      "flag_rate_at_fixed": 0.8094462540716613,
+      "flag_rate_human_at_fixed": 0.8094462540716613,
+      "flag_rate_machine_at_fixed": null
+    },
+    "legendary_humans": {
+      "n": 135,
+      "machine_prob_mean": 0.3917810618877411,
+      "flag_rate_at_0.5": 0.26666666666666666,
+      "flag_rate_human_at_0.5": 0.26666666666666666,
+      "flag_rate_machine_at_0.5": null,
+      "fixed_threshold": 0.2689616084098816,
+      "flag_rate_at_fixed": 0.32592592592592595,
+      "flag_rate_human_at_fixed": 0.32592592592592595,
+      "flag_rate_machine_at_fixed": null
+    },
+    "droidcollection_test": {
+      "n": 23405,
+      "machine_prob_mean": 0.695216178894043,
+      "flag_rate_at_0.5": 0.9226660969878231,
+      "flag_rate_human_at_0.5": 0.8953480286489117,
+      "flag_rate_machine_at_0.5": 0.9662012411347518,
+      "auroc": 0.5652779108294484,
+      "auroc_ci": [
+        0.5612786335273426,
+        0.5697344248526052
+      ],
+      "acc": 0.4368297372356334,
+      "f1": 0.5695156602109801,
+      "ece": 0.34524638617020903,
+      "fixed_threshold": 0.2689616084098816,
+      "flag_rate_at_fixed": 0.9416791283913694,
+      "flag_rate_human_at_fixed": 0.9185035811139698,
+      "flag_rate_machine_at_fixed": 0.9786125886524822
+    }
+  }
+}

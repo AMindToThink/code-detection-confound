@@ -4,8 +4,12 @@ data/repos/
 # regenerable from external/CodeGPTSensor/dataset/ via scripts/15_format_hmcorp.py
 # (~1.3 GB; takes ~30 min to rebuild)
 data/hmcorp/
-# training-run checkpoints + telemetry (large; reproducible from scripts/18_*)
-results/cgs/
+# training-run checkpoints (large; reproducible from scripts/18_*). Keep the JSON
+# metrics, eval results, and JSONL telemetry tracked — they're small and load-bearing
+# for the paper macros.
+results/cgs/*/checkpoint-best-f1/
+results/cgs/*.png
+results/cgs/*.log
 # secrets (never commit API keys)
 .env
 .env.*
