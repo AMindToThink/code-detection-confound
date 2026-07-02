@@ -46,3 +46,7 @@ Run order: `01 → 02 (./run_generation.sh) + 02b → 03 → 04 → 05 → 06`.
 
 ## Key results
 Generated into `results/report.md`, `results/figures/`, `results/tables/paper_macros.json`.
+
+## Reproducing on a fresh machine
+See **`REPRODUCE.md`** for exact environment, data-acquisition, run, and dependency details
+(the gitignored `data/`/`external/` trees, the fine-tuned checkpoints on HuggingFace, etc.).
